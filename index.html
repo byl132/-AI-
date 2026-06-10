@@ -1,0 +1,4726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企业背调系统 - Enterprise Background Check</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+/* ============================================================
+   企业背调小程序 - 样式文件
+   ============================================================ */
+
+/* CSS 变量 */
+:root {
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #111827;
+  --bg-card: #1a2035;
+  --bg-card-hover: #1f2847;
+  --border-color: #2a3050;
+  --border-glow: #00d4ff33;
+  --text-primary: #f0f6fc;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --accent-cyan: #00d4ff;
+  --accent-gold: #f0b90b;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+  --accent-purple: #8b5cf6;
+  --accent-orange: #f59e0b;
+  --accent-pink: #ec4899;
+  --sidebar-width: 240px;
+  --header-height: 64px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 全局重置 */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-cyan);
+}
+
+/* 加载动画 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  transition: opacity 0.5s, visibility 0.5s;
+}
+.loading-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent-cyan);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 应用容器 */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* 侧边栏 */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: transform 0.3s;
+}
+.sidebar-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent-gold), var(--accent-green));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: #000;
+  flex-shrink: 0;
+}
+.sidebar-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.sidebar-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+/* 侧边栏导航 */
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 8px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+.nav-item:hover {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+.nav-item.active {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 212, 255, 0.05));
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+.nav-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* 主内容区 */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部栏 */
+.header {
+  height: var(--header-height);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.mobile-menu-btn {
+  display: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  color: var(--text-secondary);
+}
+
+/* 搜索框 */
+.search-container {
+  flex: 1;
+  max-width: 600px;
+}
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-muted);
+  font-size: 14px;
+  pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: var(--transition);
+}
+.search-input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+}
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* 搜索建议 */
+.search-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  margin-top: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  display: none;
+  z-index: 200;
+  box-shadow: var(--shadow);
+}
+.search-suggestions.show {
+  display: block;
+}
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 13px;
+}
+.suggestion-item:hover {
+  background: var(--bg-card-hover);
+}
+.sug-icon {
+  font-size: 12px;
+  color: var(--accent-cyan);
+}
+
+/* 公司指示器 */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.company-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  font-size: 13px;
+  color: var(--accent-cyan);
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: var(--transition);
+}
+.company-indicator.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 内容区域 */
+.content-area {
+  flex: 1;
+  padding: 24px;
+  transition: opacity 0.3s;
+}
+.content-area.loading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* 模块面板 */
+.module-panel {
+  display: none;
+  animation: fadeInUp 0.4s ease-out;
+}
+.module-panel.active {
+  display: block;
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 模块头部 */
+.module-header {
+  margin-bottom: 24px;
+}
+.module-title {
+  font-size: 22px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.module-title-icon {
+  font-size: 24px;
+}
+.module-desc {
+  color: var(--text-secondary);
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+/* 卡片网格 */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.card-grid-2 {
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+}
+.card-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* 卡片 */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: var(--transition);
+}
+.card:hover {
+  border-color: var(--border-glow);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.05);
+  transform: translateY(-2px);
+}
+.card-title {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.card-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+.card-value.gold { color: var(--accent-gold); }
+.card-value.green { color: var(--accent-green); }
+.card-value.red { color: var(--accent-red); }
+.card-value.purple { color: var(--accent-purple); }
+
+/* 信息列表 */
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 13px;
+}
+.info-item:last-child {
+  border-bottom: none;
+}
+.info-label {
+  color: var(--text-muted);
+}
+.info-value {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.info-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.info-tag.blue {
+  background: rgba(0, 212, 255, 0.15);
+  color: var(--accent-cyan);
+}
+.info-tag.green {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-green);
+}
+.info-tag.red {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--accent-red);
+}
+.info-tag.gold {
+  background: rgba(240, 185, 11, 0.15);
+  color: var(--accent-gold);
+}
+
+/* 图表容器 */
+.chart-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.chart-container canvas {
+  max-height: 300px;
+}
+.chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+/* 表格 */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+.data-table th {
+  background: var(--bg-secondary);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-color);
+}
+.data-table td {
+  padding: 10px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+.data-table tr:hover td {
+  background: var(--bg-card-hover);
+}
+
+/* 标签云 */
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+.tag:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+.tag.positive {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: var(--accent-green);
+}
+.tag.negative {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: var(--accent-red);
+}
+
+/* 评价列表 */
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.review-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+.review-item.positive {
+  border-left: 3px solid var(--accent-green);
+}
+.review-item.negative {
+  border-left: 3px solid var(--accent-red);
+}
+.review-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.review-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* 时间线 */
+.timeline {
+  position: relative;
+  padding-left: 24px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border-color);
+}
+.timeline-item {
+  position: relative;
+  margin-bottom: 20px;
+}
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  border: 2px solid var(--bg-primary);
+}
+.timeline-date {
+  font-size: 12px;
+  color: var(--accent-cyan);
+  margin-bottom: 4px;
+}
+.timeline-content {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* 建议卡片 */
+.advice-score {
+  text-align: center;
+  padding: 30px;
+}
+.advice-score-number {
+  font-size: 64px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.advice-score-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.risk-badge {
+  display: inline-block;
+  padding: 4px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 12px;
+}
+.risk-badge.low {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-green);
+}
+.risk-badge.medium {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-orange);
+}
+.risk-badge.high {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--accent-red);
+}
+
+/* 优劣势列表 */
+.pros-cons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.pros-cons h4 {
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+.pros-cons h4.green { color: var(--accent-green); }
+.pros-cons h4.red { color: var(--accent-red); }
+.pros-cons li {
+  list-style: none;
+  padding: 6px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding-left: 16px;
+  position: relative;
+}
+.pros-cons li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.pros-cons.pros li::before { background: var(--accent-green); }
+.pros-cons.cons li::before { background: var(--accent-red); }
+
+/* 检查清单 */
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 13px;
+}
+.checklist-item:hover {
+  border-color: var(--accent-cyan);
+}
+.checklist-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-cyan);
+  cursor: pointer;
+}
+.checklist-item.checked {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+.empty-state-text {
+  font-size: 14px;
+}
+
+/* 欢迎页 */
+.welcome-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+}
+.welcome-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.6;
+}
+.welcome-title {
+  font-size: 32px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+.welcome-desc {
+  color: var(--text-secondary);
+  max-width: 500px;
+  font-size: 14px;
+  line-height: 1.8;
+  margin-bottom: 32px;
+}
+.welcome-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.welcome-hint {
+  padding: 8px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.welcome-hint:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  transform: translateY(-2px);
+}
+
+/* 渐入动画 */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+  }
+  .main-content {
+    margin-left: 0;
+  }
+  .mobile-menu-btn {
+    display: block;
+  }
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+  .card-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .card-grid-3 {
+    grid-template-columns: 1fr;
+  }
+  .pros-cons {
+    grid-template-columns: 1fr;
+  }
+  .content-area {
+    padding: 16px;
+  }
+  .welcome-title {
+    font-size: 24px;
+  }
+}
+
+/* 股票信息卡片 */
+.stock-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.stock-card:last-child {
+  border-bottom: none;
+}
+.stock-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+.stock-code {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.stock-price {
+  font-size: 18px;
+  font-weight: 700;
+}
+.stock-change {
+  font-size: 12px;
+}
+.stock-change.up { color: var(--accent-green); }
+.stock-change.down { color: var(--accent-red); }
+
+/* 福利列表 */
+.benefit-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+.benefit-icon {
+  font-size: 16px;
+}
+
+/* 仪表盘 */
+.gauge-container {
+  text-align: center;
+  padding: 20px;
+}
+.gauge-value {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+.gauge-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+  
+/* AI分析报告 */
+.ai-report-section {
+  margin-bottom:24px;
+  animation: fadeInUp 0.5s ease-out;
+}
+.ai-report-section h3 {
+  font-size:16px;
+  color:var(--accent-cyan);
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.ai-report-section h3 .icon {
+  font-size:18px;
+}
+.ai-report-text {
+  font-size:14px;
+  color:var(--text-secondary);
+  line-height:1.8;
+  padding-left:16px;
+  border-left:3px solid var(--border-color);
+}
+.ai-score-bar {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:8px 0;
+}
+.ai-score-bar .label {
+  width:80px;
+  font-size:13px;
+  color:var(--text-muted);
+}
+.ai-score-bar .bar {
+  flex:1;
+  height:8px;
+  background:var(--bg-secondary);
+  border-radius:4px;
+  overflow:hidden;
+}
+.ai-score-bar .bar-fill {
+  height:100%;
+  border-radius:4px;
+  transition:width 1s ease-out;
+}
+.ai-score-bar .value {
+  width:40px;
+  font-size:13px;
+  font-weight:600;
+  text-align:right;
+}
+.ai-verdict {
+  padding:20px;
+  border-radius:var(--radius);
+  margin-top:24px;
+  border:1px solid var(--border-color);
+}
+.ai-verdict h3 {
+  font-size:18px;
+  margin-bottom:12px;
+}
+.ai-verdict p {
+  font-size:14px;
+  color:var(--text-secondary);
+  line-height:1.8;
+}
+.ai-loading {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--accent-cyan);
+  font-size:14px;
+  padding:20px;
+}
+.ai-loading .dot {
+  animation:blink 1.4s infinite both;
+}
+.ai-loading .dot:nth-child(2) { animation-delay:0.2s; }
+.ai-loading .dot:nth-child(3) { animation-delay:0.4s; }
+@keyframes blink {
+  0%, 80%, 100% { opacity:0; }
+  40% { opacity:1; }
+}
+.data-source-tag {
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:10px;
+  font-size:11px;
+  margin-left:8px;
+  font-weight:400;
+}
+.data-source-tag.real {
+  background:rgba(16,185,129,0.15);
+  color:var(--accent-green);
+}
+.data-source-tag.mock {
+  background:rgba(245,158,11,0.15);
+  color:var(--accent-orange);
+}
+
+
+/* 设置弹窗 */
+.modal-overlay {
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.7);z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.modal-content {
+  background:var(--bg-card);border:1px solid var(--border-color);
+  border-radius:var(--radius);width:90%;max-width:500px;
+  max-height:80vh;overflow-y:auto;
+  animation:fadeInUp 0.3s ease-out;
+}
+.modal-header {
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 24px;border-bottom:1px solid var(--border-color);
+}
+.modal-header h3 {font-size:16px;}
+.modal-close {
+  background:none;border:none;color:var(--text-muted);
+  font-size:24px;cursor:pointer;padding:0 4px;
+}
+.modal-close:hover {color:var(--text-primary);}
+.modal-body {padding:24px;}
+.modal-footer {
+  padding:16px 24px;border-top:1px solid var(--border-color);
+  display:flex;justify-content:flex-end;
+}
+.setting-group {
+  margin-bottom:20px;
+}
+.setting-group label {
+  display:block;font-size:14px;font-weight:600;
+  color:var(--text-primary);margin-bottom:4px;
+}
+.setting-group small {
+  display:block;font-size:12px;color:var(--text-muted);
+  margin-bottom:8px;
+}
+.setting-group input, .setting-group select {
+  width:100%;padding:10px 14px;
+  background:var(--bg-secondary);border:1px solid var(--border-color);
+  border-radius:var(--radius-sm);color:var(--text-primary);
+  font-size:14px;font-family:inherit;outline:none;
+  transition:var(--transition);
+}
+.setting-group input:focus, .setting-group select:focus {
+  border-color:var(--accent-cyan);
+}
+.setting-hint {
+  margin-top:6px !important;
+  color:var(--accent-cyan) !important;
+  opacity:0.7;
+}
+.btn-save {
+  padding:10px 24px;
+  background:linear-gradient(135deg,var(--accent-cyan),var(--accent-gold));
+  color:#000;border:none;border-radius:var(--radius-sm);
+  font-size:14px;font-weight:600;cursor:pointer;
+  transition:var(--transition);
+}
+.btn-save:hover {opacity:0.9;transform:translateY(-1px);}
+
+  </style>
+</head>
+<body>
+
+<!-- 页面加载动画 -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+</div>
+
+<div class="app-container" id="appContainer">
+
+  <!-- 侧边栏 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">BC</div>
+      <div>
+        <div class="sidebar-title">企业背调系统</div>
+        <div class="sidebar-subtitle">Background Check</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav">
+      <div class="nav-item active" data-module="welcome">
+        <span class="nav-icon">&#9776;</span>
+        <span>总览首页</span>
+      </div>
+      <div class="nav-item" data-module="annual-report">
+        <span class="nav-icon">&#128200;</span>
+        <span>年报分析</span>
+      </div>
+      <div class="nav-item" data-module="arbitration">
+        <span class="nav-icon">&#9878;</span>
+        <span>劳动仲裁</span>
+      </div>
+      <div class="nav-item" data-module="lawsuit">
+        <span class="nav-icon">&#9879;</span>
+        <span>司法判决</span>
+      </div>
+      <div class="nav-item" data-module="overtime">
+        <span class="nav-icon">&#9200;</span>
+        <span>加班及评价</span>
+      </div>
+      <div class="nav-item" data-module="boss-recruit">
+        <span class="nav-icon">&#128188;</span>
+        <span>BOSS直聘</span>
+      </div>
+      <div class="nav-item" data-module="job-advice">
+        <span class="nav-icon">&#128161;</span>
+        <span>求职建议</span>
+      </div>
+      <div class="nav-item" data-module="investment">
+        <span class="nav-icon">&#128176;</span>
+        <span>投资情况</span>
+      </div>
+      <div class="nav-item" data-module="social-insurance">
+        <span class="nav-icon">&#128101;</span>
+        <span>社保缴纳</span>
+      </div>
+      <div class="nav-item" data-module="stock">
+        <span class="nav-icon">&#128202;</span>
+        <span>股票投资</span>
+      </div>
+      <div class="nav-item" data-module="culture">
+        <span class="nav-icon">&#127942;</span>
+        <span>企业文化</span>
+      </div>
+      <div class="nav-item" data-module="ai-analysis">
+        <span class="nav-icon">&#129302;</span>
+        <span>AI 智能分析</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer" style="padding:12px 8px;border-top:1px solid var(--border-color);">
+      <div class="nav-item" id="btn-settings" style="justify-content:center;">
+        <span class="nav-icon">&#9881;&#65039;</span>
+        <span>API 设置</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 主内容 -->
+  <main class="main-content">
+
+    <!-- 顶部栏 -->
+    <header class="header">
+      <div class="mobile-menu-btn" id="mobileMenuBtn">&#9776;</div>
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <span class="search-icon">&#128269;</span>
+          <input type="text" class="search-input" id="searchInput" placeholder="输入公司名称进行背调查询..." autocomplete="off">
+          <div class="search-suggestions" id="searchSuggestions"></div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="company-indicator" id="companyIndicator">
+          <span>&#128205;</span>
+          <span id="currentCompanyName">--</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 内容区域 -->
+    <div class="content-area" id="contentArea">
+
+      <!-- 欢迎页 -->
+      <div class="module-panel active" id="panel-welcome">
+        <div class="welcome-page">
+          <div class="welcome-icon">&#128270;</div>
+          <h1 class="welcome-title">企业背调查询系统</h1>
+          <p class="welcome-desc">输入公司名称，即可全面了解企业的经营状况、法律风险、员工评价、投资背景等关键信息，助您做出更明智的职业决策。</p>
+          <div class="welcome-hints" id="welcomeHints">
+            <!-- 由JS动态填充 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块1: 年报分析 -->
+      <div class="module-panel" id="panel-annual-report">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#128200;</span> 年报分析</h2>
+          <p class="module-desc">基于公开年报数据，分析公司经营状况和财务健康度</p>
+        </div>
+        <div id="annual-report-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128194;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块2: 劳动仲裁 -->
+      <div class="module-panel" id="panel-arbitration">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#9878;</span> 劳动仲裁</h2>
+          <p class="module-desc">查询公司劳动仲裁记录，评估劳资关系风险</p>
+        </div>
+        <div id="arbitration-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#9878;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块3: 司法判决 -->
+      <div class="module-panel" id="panel-lawsuit">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#9879;</span> 司法判决</h2>
+          <p class="module-desc">查询公司涉诉案件，了解法律风险状况</p>
+        </div>
+        <div id="lawsuit-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#9879;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块4: 加班及员工评价 -->
+      <div class="module-panel" id="panel-overtime">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#9200;</span> 加班及员工评价</h2>
+          <p class="module-desc">综合评估工作强度和员工满意度</p>
+        </div>
+        <div id="overtime-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#9200;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块5: BOSS直聘活跃度 -->
+      <div class="module-panel" id="panel-boss-recruit">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#128188;</span> BOSS直聘活跃度</h2>
+          <p class="module-desc">分析公司在招聘平台的活跃程度和招聘趋势</p>
+        </div>
+        <div id="boss-recruit-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128188;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块6: 求职建议 -->
+      <div class="module-panel" id="panel-job-advice">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#128161;</span> 求职建议</h2>
+          <p class="module-desc">基于多维度数据综合评估，给出求职建议</p>
+        </div>
+        <div id="job-advice-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128161;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块7: 投资情况 -->
+      <div class="module-panel" id="panel-investment">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#128176;</span> 投资情况</h2>
+          <p class="module-desc">了解公司投资历史、融资轮次和投资布局</p>
+        </div>
+        <div id="investment-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128176;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块8: 社保缴纳 -->
+      <div class="module-panel" id="panel-social-insurance">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#128101;</span> 社保缴纳</h2>
+          <p class="module-desc">查看公司社保缴纳情况和行业对比</p>
+        </div>
+        <div id="social-insurance-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128101;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块9: 股票投资 -->
+      <div class="module-panel" id="panel-stock">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#128202;</span> 股票投资</h2>
+          <p class="module-desc">查看公司上市信息和股票市场表现</p>
+        </div>
+        <div id="stock-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128202;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块10: 企业文化 -->
+      <div class="module-panel" id="panel-culture">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#127942;</span> 企业文化</h2>
+          <p class="module-desc">深入了解公司文化、福利待遇和员工关怀</p>
+        </div>
+        <div id="culture-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#127942;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块11: AI智能分析 -->
+      <div class="module-panel" id="panel-ai-analysis">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#129302;</span> AI 智能分析</h2>
+          <p class="module-desc">基于多维度数据自动生成企业综合分析报告</p>
+        </div>
+        <div id="ai-analysis-content">
+          <div class="card">
+            <div style="text-align:center;padding:40px;">
+              <div style="font-size:48px;margin-bottom:16px;">&#129302;</div>
+              <p style="color:var(--text-secondary);margin-bottom:24px;">点击下方按钮，AI将自动分析该公司数据并生成综合报告</p>
+              <button id="btn-generate-ai-report" style="padding:12px 32px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-gold));color:#000;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:var(--transition);">生成AI分析报告</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// ============================================================
+// 企业背调小程序 - 模拟数据
+// ============================================================
+
+const MockData = {
+  // 支持搜索的公司列表
+  companyList: [
+    '字节跳动', '阿里巴巴', '腾讯控股', '华为技术', '百度集团',
+    '京东集团', '美团', '拼多多', '小米集团', '网易', '快手科技',
+    '滴滴出行', '蚂蚁集团', '商汤科技', '大疆创新', '比亚迪',
+    '宁德时代', '中芯国际', '科大讯飞', '海康威视'
+  ],
+
+  // 根据公司名称生成数据（使用确定性伪随机）
+  generateCompanyData(name) {
+    const seed = this._hashStr(name);
+    const rand = (min, max) => {
+      const x = Math.sin(seed + arguments.callee.caller.arguments[0] * 9301 + 49297) * 49297;
+      return min + (x - Math.floor(x)) * (max - min);
+    };
+    // 简单的种子随机
+    let _s = seed;
+    const seededRand = (min, max) => {
+      _s = (_s * 9301 + 49297) % 233280;
+      return min + (_s / 233280) * (max - min);
+    };
+    const sRand = seededRand;
+
+    const industries = ['互联网/科技', '电子商务', '人工智能', '智能制造', '新能源', '半导体', '软件开发', '金融科技', '企业服务', '消费电子'];
+    const cities = ['北京', '上海', '深圳', '杭州', '广州', '南京', '成都', '武汉', '苏州', '东莞'];
+    const legalPersons = ['张三', '李四', '王五', '赵六', '陈七', '刘八', '杨九', '黄十', '周明', '吴强'];
+    const statuses = ['存续', '在营', '正常'];
+
+    const industry = industries[Math.floor(sRand(0, industries.length))];
+    const city = cities[Math.floor(sRand(0, cities.length))];
+    const legalPerson = legalPersons[Math.floor(sRand(0, legalPersons.length))];
+    const status = statuses[Math.floor(sRand(0, statuses.length))];
+
+    const registeredCapital = Math.floor(sRand(500, 500000));
+    const capitalUnit = registeredCapital > 10000 ? '万元人民币' : '万元人民币';
+    const establishYear = 2000 + Math.floor(sRand(0, 24));
+    const establishMonth = Math.floor(sRand(1, 13));
+    const establishDate = `${establishYear}-${String(establishMonth).padStart(2, '0')}-01`;
+    const employeeCount = Math.floor(sRand(500, 150000));
+
+    // 模块1: 年报分析
+    const revenue = [];
+    const profit = [];
+    for (let i = 0; i < 5; i++) {
+      const r = Math.floor(sRand(10, 5000));
+      const p = Math.floor(r * sRand(0.05, 0.25));
+      revenue.push(r);
+      profit.push(p);
+    }
+    const years = [];
+    for (let i = 4; i >= 0; i--) {
+      years.push(2024 - i);
+    }
+
+    const financialIndicators = {
+      grossMargin: +(sRand(15, 65)).toFixed(1),
+      netMargin: +(sRand(3, 25)).toFixed(1),
+      roe: +(sRand(5, 30)).toFixed(1),
+      debtRatio: +(sRand(20, 70)).toFixed(1),
+      currentRatio: +(sRand(1.0, 3.5)).toFixed(2),
+      quickRatio: +(sRand(0.8, 3.0)).toFixed(2)
+    };
+
+    const annualReportSummary = [
+      { year: 2024, summary: `${name}2024年度营业收入达到${revenue[4]}亿元，同比增长${(sRand(5, 35)).toFixed(1)}%，净利润${profit[4]}亿元。公司持续加大研发投入，研发费用占营收比例达${(sRand(8, 25)).toFixed(1)}%。` },
+      { year: 2023, summary: `${name}2023年度实现营收${revenue[3]}亿元，净利润${profit[3]}亿元。公司业务稳步扩张，新开拓了${Math.floor(sRand(2, 8))}个海外市场。` },
+      { year: 2022, summary: `${name}2022年度营收${revenue[2]}亿元，净利润${profit[2]}亿元。受宏观经济影响，增速有所放缓，但核心业务保持韧性。` },
+      { year: 2021, summary: `${name}2021年度营收${revenue[1]}亿元，净利润${profit[1]}亿元。公司完成新一轮融资，估值大幅提升。` },
+      { year: 2020, summary: `${name}2020年度营收${revenue[0]}亿元，净利润${profit[0]}亿元。面对疫情挑战，公司积极转型线上业务，实现逆势增长。` }
+    ];
+
+    // 模块2: 劳动仲裁
+    const arbitrationTotal = Math.floor(sRand(0, 50));
+    const arbitrationTypes = {
+      '工资拖欠': Math.floor(sRand(0, 15)),
+      '违法解除': Math.floor(sRand(0, 12)),
+      '工伤赔偿': Math.floor(sRand(0, 10)),
+      '加班费争议': Math.floor(sRand(0, 10)),
+      '社保纠纷': Math.floor(sRand(0, 8)),
+      '竞业限制': Math.floor(sRand(0, 5))
+    };
+    const arbitrationTrend = [
+      Math.floor(sRand(1, 20)),
+      Math.floor(sRand(1, 20)),
+      Math.floor(sRand(1, 20))
+    ];
+
+    const arbitrationCases = [];
+    const caseTypes = ['工资拖欠', '违法解除', '工伤赔偿', '加班费争议', '社保纠纷'];
+    const caseResults = ['调解成功', '裁决支持', '部分支持', '驳回'];
+    for (let i = 0; i < Math.min(arbitrationTotal, 6); i++) {
+      arbitrationCases.push({
+        caseNo: `劳仲案字[${2022 + Math.floor(sRand(0, 3))}]第${Math.floor(sRand(100, 999))}号`,
+        type: caseTypes[Math.floor(sRand(0, caseTypes.length))],
+        applicant: `员工${String.fromCharCode(65 + i)}`,
+        result: caseResults[Math.floor(sRand(0, caseResults.length))],
+        amount: `${(sRand(1, 50)).toFixed(1)}万元`,
+        date: `${2022 + Math.floor(sRand(0, 3))}-${String(Math.floor(sRand(1, 13))).padStart(2, '0')}-${String(Math.floor(sRand(1, 29))).padStart(2, '0')}`
+      });
+    }
+
+    // 模块3: 司法判决
+    const lawsuitTotal = Math.floor(sRand(5, 200));
+    const lawsuitTypes = {
+      '合同纠纷': Math.floor(sRand(5, 60)),
+      '劳动争议': Math.floor(sRand(2, 40)),
+      '知识产权': Math.floor(sRand(1, 30)),
+      '不正当竞争': Math.floor(sRand(1, 20)),
+      '侵权责任': Math.floor(sRand(1, 15)),
+      '股权转让': Math.floor(sRand(0, 10))
+    };
+    const plaintiffRatio = +(sRand(0.3, 0.7)).toFixed(2);
+    const defendantRatio = +(1 - plaintiffRatio).toFixed(2);
+
+    const lawsuitCases = [];
+    const lawsuitTypesArr = ['合同纠纷', '劳动争议', '知识产权', '不正当竞争', '侵权责任'];
+    const courtResults = ['胜诉', '部分胜诉', '败诉', '调解'];
+    for (let i = 0; i < Math.min(lawsuitTotal, 8); i++) {
+      const isPlaintiff = sRand(0, 1) > 0.5;
+      lawsuitCases.push({
+        caseNo: `(${2022 + Math.floor(sRand(0, 3))})${String.fromCharCode(65 + Math.floor(sRand(0, 24)))}民初${Math.floor(sRand(1000, 9999))}号`,
+        type: lawsuitTypesArr[Math.floor(sRand(0, lawsuitTypesArr.length))],
+        role: isPlaintiff ? '原告' : '被告',
+        opponent: `${['某某科技', '某某贸易', '某某投资', '某某传媒', '某某网络'][Math.floor(sRand(0, 5))]}有限公司`,
+        result: courtResults[Math.floor(sRand(0, courtResults.length))],
+        date: `${2022 + Math.floor(sRand(0, 3))}-${String(Math.floor(sRand(1, 13))).padStart(2, '0')}-${String(Math.floor(sRand(1, 29))).padStart(2, '0')}`
+      });
+    }
+
+    // 模块4: 加班及员工评价
+    const overtimeScore = {
+      workIntensity: +(sRand(3, 10)).toFixed(1),
+      overtimeFrequency: +(sRand(3, 10)).toFixed(1),
+      weekendOvertime: +(sRand(2, 10)).toFixed(1),
+      overtimeCompensation: +(sRand(2, 9)).toFixed(1),
+      workLifeBalance: +(sRand(2, 8)).toFixed(1)
+    };
+    const satisfactionScore = +(sRand(2.5, 4.8)).toFixed(1);
+    const satisfactionTotal = Math.floor(sRand(200, 5000));
+
+    const positiveTags = ['扁平管理', '技术氛围好', '成长空间大', '福利待遇好', '团队氛围好', '弹性工作', '免费三餐', '股票期权', '培训体系完善', '领导nice'];
+    const negativeTags = ['加班严重', '996文化', '管理混乱', '晋升困难', '薪资偏低', '压力太大', '频繁裁员', '流程繁琐', '部门墙高', '内卷严重'];
+    const tagCloud = [];
+    const tagCount = Math.floor(sRand(8, 16));
+    for (let i = 0; i < tagCount; i++) {
+      const isPositive = sRand(0, 1) > 0.4;
+      const tags = isPositive ? positiveTags : negativeTags;
+      tagCloud.push({
+        text: tags[Math.floor(sRand(0, tags.length))],
+        positive: isPositive,
+        weight: Math.floor(sRand(50, 200))
+      });
+    }
+
+    const reviews = [];
+    const positiveReviews = [
+      '公司技术栈很新，能学到很多东西，同事之间氛围融洽。',
+      '福利待遇不错，有免费三餐和健身房，年终奖也比较丰厚。',
+      '扁平化管理，领导比较随和，沟通成本低，工作效率高。',
+      '公司对新人很友好，有完善的培训体系和导师制度。',
+      '工作内容有挑战性，能接触到前沿技术，个人成长很快。'
+    ];
+    const negativeReviews = [
+      '加班比较严重，尤其是项目上线期间，经常需要通宵。',
+      '晋升通道不够清晰，需要熬资历，年轻人机会不多。',
+      '跨部门协作比较困难，流程繁琐，效率偏低。',
+      '绩效考核压力较大，末位淘汰制度让人很有紧迫感。',
+      '公司规模扩大后，管理有些混乱，决策链路变长。'
+    ];
+    for (let i = 0; i < 6; i++) {
+      const isPositive = i < 3;
+      const pool = isPositive ? positiveReviews : negativeReviews;
+      reviews.push({
+        text: pool[Math.floor(sRand(0, pool.length))],
+        sentiment: isPositive ? 'positive' : 'negative',
+        rating: isPositive ? +(sRand(4, 5)).toFixed(1) : +(sRand(1.5, 3.5)).toFixed(1),
+        date: `${2023 + Math.floor(sRand(0, 2))}-${String(Math.floor(sRand(1, 13))).padStart(2, '0')}-${String(Math.floor(sRand(1, 29))).padStart(2, '0')}`,
+        position: ['前端工程师', '后端工程师', '产品经理', 'UI设计师', '数据分析师', '运营专员'][Math.floor(sRand(0, 6))]
+      });
+    }
+
+    // 模块5: BOSS直聘活跃度
+    const jobCount = Math.floor(sRand(10, 500));
+    const activityScore = +(sRand(40, 98)).toFixed(1);
+    const jobTypes = {
+      '技术开发': Math.floor(sRand(5, 100)),
+      '产品设计': Math.floor(sRand(3, 50)),
+      '运营推广': Math.floor(sRand(3, 40)),
+      '市场销售': Math.floor(sRand(2, 30)),
+      '职能支持': Math.floor(sRand(2, 20)),
+      '数据分析': Math.floor(sRand(1, 15))
+    };
+    const recruitTrend = [];
+    for (let i = 0; i < 6; i++) {
+      recruitTrend.push(Math.floor(sRand(20, 200)));
+    }
+
+    // 模块6: 求职建议
+    const overallScore = Math.floor(sRand(35, 95));
+    const riskLevel = overallScore >= 75 ? '低' : overallScore >= 50 ? '中' : '高';
+    const riskColor = overallScore >= 75 ? '#00d4ff' : overallScore >= 50 ? '#f0b90b' : '#ff4757';
+
+    const advantages = [];
+    const disadvants = [];
+    const advPool = ['行业前景广阔', '技术实力强', '品牌知名度高', '薪酬竞争力强', '员工福利完善', '培训体系健全', '股权激励丰厚', '国际化视野', '创新能力强', '团队氛围好'];
+    const disPool = ['加班强度大', '竞争压力大', '组织架构调整频繁', '部分部门管理混乱', '晋升周期较长', '绩效考核严格', '工作生活平衡差', '裁员风险', '内部政治', '流程效率低'];
+    const advCount = Math.floor(sRand(2, 5));
+    const disCount = Math.floor(sRand(2, 5));
+    const usedAdv = new Set();
+    const usedDis = new Set();
+    for (let i = 0; i < advCount; i++) {
+      let idx;
+      do { idx = Math.floor(sRand(0, advPool.length)); } while (usedAdv.has(idx));
+      usedAdv.add(idx);
+      advantages.push(advPool[idx]);
+    }
+    for (let i = 0; i < disCount; i++) {
+      let idx;
+      do { idx = Math.floor(sRand(0, disPool.length)); } while (usedDis.has(idx));
+      usedDis.add(idx);
+      disadvants.push(disPool[idx]);
+    }
+
+    const suggestions = [
+      '建议通过多种渠道了解目标部门的工作氛围和文化',
+      '面试时可以询问直属领导的管理风格和团队协作方式',
+      '关注公司近期的组织架构调整和战略方向变化',
+      '了解目标岗位的绩效考核标准和晋升路径',
+      '建议与在职或离职员工进行深入沟通，获取真实信息',
+      '注意查看劳动合同中的竞业限制和保密条款',
+      '了解公司的期权/股权激励政策和兑现条件'
+    ];
+
+    const checklist = [
+      { item: '核实公司工商注册信息', checked: false },
+      { item: '查询公司法律诉讼记录', checked: false },
+      { item: '了解公司财务状况', checked: false },
+      { item: '调查公司口碑和员工评价', checked: false },
+      { item: '核实薪资水平和市场对比', checked: false },
+      { item: '了解加班文化和工作强度', checked: false },
+      { item: '确认社保公积金缴纳情况', checked: false },
+      { item: '审查劳动合同条款', checked: false },
+      { item: '了解公司发展前景和行业地位', checked: false },
+      { item: '咨询行业内的专业人士', checked: false }
+    ];
+
+    // 模块7: 投资情况
+    const investmentEvents = [];
+    const rounds = ['天使轮', 'A轮', 'B轮', 'C轮', 'D轮', 'E轮', '战略投资', 'Pre-IPO', 'IPO'];
+    const investors = ['红杉资本', '经纬创投', 'IDG资本', '高瓴资本', '软银愿景', '腾讯投资', '阿里巴巴', '淡马锡', 'DST Global', '老虎环球', '中金资本', '深创投', '招银国际', '博裕资本', '云锋基金'];
+    const eventCount = Math.floor(sRand(3, 10));
+    for (let i = 0; i < eventCount; i++) {
+      const year = 2015 + Math.floor(sRand(0, 10));
+      const month = Math.floor(sRand(1, 13));
+      investmentEvents.push({
+        date: `${year}-${String(month).padStart(2, '0')}`,
+        round: rounds[Math.min(i, rounds.length - 1)],
+        amount: `${['数百万', '数千万', '1亿', '2亿', '3亿', '5亿', '10亿', '15亿', '20亿', '50亿'][Math.floor(sRand(0, 10))]}${sRand(0, 1) > 0.5 ? '美元' : '人民币'}`,
+        investors: [investors[Math.floor(sRand(0, investors.length))], investors[Math.floor(sRand(0, investors.length))]].filter((v, i, a) => a.indexOf(v) === i),
+        valuation: `${(sRand(1, 500)).toFixed(0)}亿${sRand(0, 1) > 0.5 ? '美元' : '人民币'}`
+      });
+    }
+    investmentEvents.sort((a, b) => a.date.localeCompare(b.date));
+
+    const investRoundDist = {};
+    investmentEvents.forEach(e => {
+      investRoundDist[e.round] = (investRoundDist[e.round] || 0) + 1;
+    });
+
+    const portfolioCompanies = [];
+    const pcNames = ['某某AI科技', '某某云计算', '某某机器人', '某某芯片', '某某新能源', '某某生物科技', '某某教育', '某某金融科技', '某某物流', '某某医疗健康'];
+    for (let i = 0; i < Math.floor(sRand(3, 8)); i++) {
+      portfolioCompanies.push({
+        name: pcNames[Math.floor(sRand(0, pcNames.length))],
+        industry: industries[Math.floor(sRand(0, industries.length))],
+        investAmount: `${(sRand(1000, 50000)).toFixed(0)}万元`,
+        shareRatio: `${(sRand(5, 30)).toFixed(1)}%`,
+        status: ['已退出', '持有中', 'IPO中'][Math.floor(sRand(0, 3))]
+      });
+    }
+
+    const externalInvestment = {
+      totalAmount: `${(sRand(10, 300)).toFixed(0)}亿元`,
+      investorCount: Math.floor(sRand(5, 30)),
+      latestRound: rounds[Math.min(eventCount - 1, rounds.length - 1)],
+      latestValuation: `${(sRand(50, 2000)).toFixed(0)}亿元`
+    };
+
+    // 模块8: 社保缴纳
+    const socialInsuranceTrend = [];
+    for (let i = 0; i < 5; i++) {
+      socialInsuranceTrend.push(Math.floor(sRand(500, 100000)));
+    }
+
+    const socialInsuranceRatios = {
+      '养老保险': +(sRand(85, 100)).toFixed(1),
+      '医疗保险': +(sRand(88, 100)).toFixed(1),
+      '失业保险': +(sRand(80, 98)).toFixed(1),
+      '工伤保险': +(sRand(85, 100)).toFixed(1),
+      '生育保险': +(sRand(82, 98)).toFixed(1),
+      '住房公积金': +(sRand(70, 100)).toFixed(1)
+    };
+
+    const actualVsExpected = {
+      actual: Math.floor(sRand(500, 100000)),
+      expected: Math.floor(sRand(500, 120000)),
+      ratio: +(sRand(0.75, 0.99)).toFixed(2)
+    };
+
+    const industryCompare = {
+      companyName: name,
+      pensionRate: +(sRand(85, 100)).toFixed(1),
+      industryAvg: +(sRand(78, 92)).toFixed(1),
+      industryTop: +(sRand(95, 100)).toFixed(1)
+    };
+
+    // 模块9: 股票投资
+    const stockMarkets = [];
+    if (sRand(0, 1) > 0.3) {
+      stockMarkets.push({
+        market: '港股',
+        code: `${Math.floor(sRand(1, 9999))}.HK`,
+        name: name + '（港股）',
+        currentPrice: +(sRand(10, 500)).toFixed(2),
+        change: +(sRand(-5, 5)).toFixed(2),
+        marketCap: `${(sRand(100, 10000)).toFixed(0)}亿港元`
+      });
+    }
+    if (sRand(0, 1) > 0.4) {
+      stockMarkets.push({
+        market: '美股',
+        code: name.substring(0, 4).toUpperCase(),
+        name: name + '（美股）',
+        currentPrice: +(sRand(5, 300)).toFixed(2),
+        change: +(sRand(-8, 8)).toFixed(2),
+        marketCap: `${(sRand(50, 5000)).toFixed(0)}亿美元`
+      });
+    }
+    if (sRand(0, 1) > 0.5) {
+      stockMarkets.push({
+        market: 'A股',
+        code: `${Math.floor(sRand(600000, 605000))}.SH`,
+        name: name + '（A股）',
+        currentPrice: +(sRand(5, 200)).toFixed(2),
+        change: +(sRand(-5, 5)).toFixed(2),
+        marketCap: `${(sRand(100, 8000)).toFixed(0)}亿元人民币`
+      });
+    }
+
+    const stockPriceTrend = [];
+    let basePrice = sRand(20, 200);
+    for (let i = 0; i < 12; i++) {
+      basePrice *= (1 + (sRand(-0.1, 0.15)));
+      stockPriceTrend.push(+basePrice.toFixed(2));
+    }
+
+    const stockFinancials = {
+      pe: +(sRand(10, 80)).toFixed(1),
+      pb: +(sRand(1, 15)).toFixed(1),
+      eps: +(sRand(0.5, 20)).toFixed(2),
+      dividendYield: +(sRand(0, 5)).toFixed(2),
+      revenueGrowth: +(sRand(-10, 50)).toFixed(1),
+      profitGrowth: +(sRand(-15, 60)).toFixed(1)
+    };
+
+    // 模块10: 企业文化
+    const cultureScores = {
+      innovation: +(sRand(5, 10)).toFixed(1),
+      collaboration: +(sRand(5, 10)).toFixed(1),
+      transparency: +(sRand(4, 9)).toFixed(1),
+      employeeCare: +(sRand(4, 9)).toFixed(1),
+      growthSpace: +(sRand(5, 10)).toFixed(1)
+    };
+
+    const cultureTags = [];
+    const allCultureTags = ['开放包容', '结果导向', '数据驱动', '用户至上', '快速迭代', '拥抱变化', '追求卓越', '务实高效', '持续学习', '多元文化', '扁平管理', '自我驱动', '创新突破', '团队协作', '社会责任'];
+    const cultureTagCount = Math.floor(sRand(6, 12));
+    const usedCultureTags = new Set();
+    for (let i = 0; i < cultureTagCount; i++) {
+      let idx;
+      do { idx = Math.floor(sRand(0, allCultureTags.length)); } while (usedCultureTags.has(idx));
+      usedCultureTags.add(idx);
+      cultureTags.push(allCultureTags[idx]);
+    }
+
+    const benefits = [
+      '五险一金（全额缴纳）',
+      '补充商业保险',
+      '年度健康体检',
+      '带薪年假（15-20天）',
+      '弹性工作时间',
+      '免费三餐/餐补',
+      '健身房/运动补贴',
+      '年终奖金（1-6个月）',
+      '股票期权/限制性股票',
+      '子女教育补贴',
+      '租房补贴/人才公寓',
+      '年度旅游/团建'
+    ];
+
+    const activities = [
+      { type: '培训', name: '新员工入职训练营', frequency: '每月', desc: '为期一周的系统培训，涵盖企业文化、业务知识和技能提升' },
+      { type: '培训', name: '技术分享会', frequency: '每周', desc: '内部技术交流，分享前沿技术和最佳实践' },
+      { type: '活动', name: '黑客马拉松', frequency: '每季度', desc: '48小时创新挑战赛，鼓励跨部门协作创新' },
+      { type: '活动', name: '户外团建', frequency: '每半年', desc: '户外拓展训练和团队建设活动' },
+      { type: '培训', name: '领导力发展计划', frequency: '每年', desc: '针对管理层的领导力提升培训项目' },
+      { type: '活动', name: '公益志愿者活动', frequency: '每月', desc: '组织员工参与社区公益和志愿服务' }
+    ];
+
+    return {
+      basicInfo: {
+        name,
+        industry,
+        city,
+        legalPerson,
+        status,
+        registeredCapital: `${registeredCapital}${capitalUnit}`,
+        establishDate,
+        employeeCount,
+        registeredAddress: `${city}市${['朝阳区', '海淀区', '南山区', '浦东新区', '余杭区', '天河区'][Math.floor(sRand(0, 6))]}${['科技园', '产业园', '创新中心', '商务中心', '软件园'][Math.floor(sRand(0, 5))]}${Math.floor(sRand(1, 30))}栋`
+      },
+      annualReport: {
+        years,
+        revenue,
+        profit,
+        financialIndicators,
+        summary: annualReportSummary
+      },
+      arbitration: {
+        total: arbitrationTotal,
+        types: arbitrationTypes,
+        trend: arbitrationTrend,
+        trendYears: ['2022', '2023', '2024'],
+        cases: arbitrationCases
+      },
+      lawsuit: {
+        total: lawsuitTotal,
+        types: lawsuitTypes,
+        plaintiffRatio,
+        defendantRatio,
+        cases: lawsuitCases
+      },
+      overtime: {
+        scores: overtimeScore,
+        satisfactionScore,
+        satisfactionTotal,
+        tagCloud,
+        reviews
+      },
+      bossRecruit: {
+        jobCount,
+        activityScore,
+        jobTypes,
+        recruitTrend,
+        recruitMonths: ['1月', '2月', '3月', '4月', '5月', '6月']
+      },
+      jobAdvice: {
+        overallScore,
+        riskLevel,
+        riskColor,
+        advantages,
+        disadvantages: disadvants,
+        suggestions,
+        checklist
+      },
+      investment: {
+        events: investmentEvents,
+        roundDist: investRoundDist,
+        portfolioCompanies,
+        externalInvestment
+      },
+      socialInsurance: {
+        trend: socialInsuranceTrend,
+        trendYears: years,
+        ratios: socialInsuranceRatios,
+        actualVsExpected,
+        industryCompare
+      },
+      stock: {
+        markets: stockMarkets,
+        priceTrend: stockPriceTrend,
+        priceMonths: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        financials: stockFinancials
+      },
+      culture: {
+        scores: cultureScores,
+        tags: cultureTags,
+        benefits,
+        activities
+      }
+    };
+  },
+
+  _hashStr(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  }
+};
+
+const REAL_DATA_COMPANIES = {
+  '字节跳动': function() {
+    return {
+      basicInfo: {
+        name: '字节跳动',
+        industry: '互联网/科技',
+        city: '北京',
+        legalPerson: '张利东',
+        status: '存续',
+        registeredCapital: '3亿美元',
+        establishDate: '2012-03-15',
+        employeeCount: 150000,
+        registeredAddress: '北京市海淀区北三环西路23号中钢国际广场A座'
+      },
+      annualReport: {
+        years: [2020, 2021, 2022, 2023, 2024],
+        revenue: [2400, 3600, 5500, 6500, 7500],
+        profit: [600, 780, 850, 1200, 1500],
+        financialIndicators: {
+          grossMargin: 55,
+          netMargin: 20,
+          roe: 18,
+          debtRatio: 45,
+          currentRatio: 2.1,
+          quickRatio: 1.8
+        },
+        summary: [
+          { year: 2024, summary: '字节跳动2024年度营业收入达到7500亿元，同比增长15.4%，净利润1500亿元。公司持续加大在AI和短视频领域的投入，TikTok全球用户突破20亿。' },
+          { year: 2023, summary: '字节跳动2023年度实现营收6500亿元，净利润1200亿元。公司AI大模型"豆包"上线，在国内外市场取得显著增长。' },
+          { year: 2022, summary: '字节跳动2022年度营收5500亿元，净利润850亿元。面对全球经济不确定性，公司业务保持韧性，抖音电商快速增长。' },
+          { year: 2021, summary: '字节跳动2021年度营收3600亿元，净利润780亿元。公司完成多轮融资，估值大幅提升至1800亿美元。' },
+          { year: 2020, summary: '字节跳动2020年度营收2400亿元，净利润600亿元。TikTok在全球市场爆发式增长，成为全球最受欢迎的短视频平台之一。' }
+        ]
+      },
+      arbitration: {
+        total: 186,
+        types: { '工资拖欠': 45, '违法解除': 52, '加班费争议': 38, '工伤赔偿': 25, '社保纠纷': 18, '竞业限制': 8 },
+        trend: [52, 58, 76],
+        trendYears: ['2022', '2023', '2024'],
+        cases: [
+          { caseNo: '劳仲案字[2024]第088号', type: '违法解除', applicant: '员工A', result: '裁决支持', amount: '18.5万元', date: '2024-03-15' },
+          { caseNo: '劳仲案字[2024]第125号', type: '加班费争议', applicant: '员工B', result: '部分支持', amount: '12.3万元', date: '2024-05-20' },
+          { caseNo: '劳仲案字[2023]第256号', type: '工资拖欠', applicant: '员工C', result: '裁决支持', amount: '25.6万元', date: '2023-08-10' },
+          { caseNo: '劳仲案字[2023]第312号', type: '竞业限制', applicant: '员工D', result: '部分支持', amount: '45.0万元', date: '2023-11-05' },
+          { caseNo: '劳仲案字[2022]第178号', type: '工伤赔偿', applicant: '员工E', result: '调解成功', amount: '32.0万元', date: '2022-06-22' },
+          { caseNo: '劳仲案字[2022]第445号', type: '社保纠纷', applicant: '员工F', result: '裁决支持', amount: '8.5万元', date: '2022-12-18' }
+        ]
+      },
+      lawsuit: {
+        total: 312,
+        types: { '合同纠纷': 95, '劳动争议': 78, '知识产权': 52, '不正当竞争': 35, '侵权责任': 28, '股权转让': 24 },
+        plaintiffRatio: 0.45,
+        defendantRatio: 0.55,
+        cases: [
+          { caseNo: '(2024)京民初1234号', type: '知识产权', role: '原告', opponent: '某某网络有限公司', result: '胜诉', date: '2024-02-15' },
+          { caseNo: '(2024)京民初2567号', type: '不正当竞争', role: '原告', opponent: '某某科技有限公司', result: '部分胜诉', date: '2024-04-20' },
+          { caseNo: '(2023)京民初3456号', type: '合同纠纷', role: '被告', opponent: '某某传媒有限公司', result: '调解', date: '2023-07-10' },
+          { caseNo: '(2023)京民初4567号', type: '劳动争议', role: '被告', opponent: '前员工李某', result: '部分胜诉', date: '2023-09-25' },
+          { caseNo: '(2022)京民初5678号', type: '侵权责任', role: '原告', opponent: '某某贸易公司', result: '胜诉', date: '2022-11-30' },
+          { caseNo: '(2022)京民初6789号', type: '股权转让', role: '被告', opponent: '某某投资公司', result: '败诉', date: '2022-05-15' },
+          { caseNo: '(2024)京民初7890号', type: '知识产权', role: '原告', opponent: '某某AI公司', result: '胜诉', date: '2024-01-08' },
+          { caseNo: '(2023)京民初8901号', type: '合同纠纷', role: '原告', opponent: '某某广告公司', result: '部分胜诉', date: '2023-03-22' }
+        ]
+      },
+      overtime: {
+        scores: { workIntensity: 9.2, overtimeFrequency: 9.5, weekendOvertime: 8.8, overtimeCompensation: 5.2, workLifeBalance: 3.8 },
+        satisfactionScore: 3.2,
+        satisfactionTotal: 8500,
+        tagCloud: [
+          { text: '技术氛围好', positive: true, weight: 180 },
+          { text: '成长空间大', positive: true, weight: 160 },
+          { text: '免费三餐', positive: true, weight: 150 },
+          { text: '扁平管理', positive: true, weight: 140 },
+          { text: '加班严重', positive: false, weight: 190 },
+          { text: '996文化', positive: false, weight: 185 },
+          { text: '内卷严重', positive: false, weight: 170 },
+          { text: '压力太大', positive: false, weight: 165 },
+          { text: '股票期权', positive: true, weight: 155 },
+          { text: '弹性工作', positive: true, weight: 130 },
+          { text: '频繁裁员', positive: false, weight: 145 },
+          { text: '数据驱动', positive: true, weight: 120 }
+        ],
+        reviews: [
+          { text: '技术栈很新，能学到很多东西，同事之间氛围融洽，但加班确实比较多。', sentiment: 'positive', rating: 4.0, date: '2024-05-10', position: '前端工程师' },
+          { text: '福利待遇不错，有免费三餐和健身房，年终奖也比较丰厚，就是工作强度大。', sentiment: 'positive', rating: 3.8, date: '2024-04-22', position: '后端工程师' },
+          { text: '扁平化管理，领导比较随和，沟通成本低，工作效率高。', sentiment: 'positive', rating: 4.2, date: '2024-03-15', position: '产品经理' },
+          { text: '加班比较严重，尤其是项目上线期间，经常需要通宵，工作生活平衡很差。', sentiment: 'negative', rating: 2.5, date: '2024-02-28', position: 'UI设计师' },
+          { text: '绩效考核压力较大，末位淘汰制度让人很有紧迫感，内卷严重。', sentiment: 'negative', rating: 2.8, date: '2024-01-15', position: '数据分析师' },
+          { text: '公司规模扩大后，管理有些混乱，决策链路变长，晋升通道不够清晰。', sentiment: 'negative', rating: 3.0, date: '2023-12-20', position: '运营专员' }
+        ]
+      },
+      bossRecruit: {
+        jobCount: 450,
+        activityScore: 92,
+        jobTypes: { '技术开发': 180, '产品设计': 85, '运营推广': 65, '市场销售': 45, '职能支持': 45, '数据分析': 30 },
+        recruitTrend: [380, 400, 420, 440, 450, 450],
+        recruitMonths: ['1月', '2月', '3月', '4月', '5月', '6月']
+      },
+      jobAdvice: {
+        overallScore: 58,
+        riskLevel: '中',
+        riskColor: '#f0b90b',
+        advantages: ['行业前景广阔', '技术实力强', '薪酬竞争力强', '成长空间大', '国际化视野'],
+        disadvantages: ['加班强度大', '工作生活平衡差', '内卷严重', '绩效考核严格', '裁员风险'],
+        suggestions: [
+          '建议通过多种渠道了解目标部门的工作氛围和文化',
+          '面试时可以询问直属领导的管理风格和团队协作方式',
+          '关注公司近期的组织架构调整和战略方向变化',
+          '了解目标岗位的绩效考核标准和晋升路径',
+          '建议与在职或离职员工进行深入沟通，获取真实信息',
+          '注意查看劳动合同中的竞业限制和保密条款',
+          '了解公司的期权/股权激励政策和兑现条件'
+        ],
+        checklist: [
+          { item: '核实公司工商注册信息', checked: false },
+          { item: '查询公司法律诉讼记录', checked: false },
+          { item: '了解公司财务状况', checked: false },
+          { item: '调查公司口碑和员工评价', checked: false },
+          { item: '核实薪资水平和市场对比', checked: false },
+          { item: '了解加班文化和工作强度', checked: false },
+          { item: '确认社保公积金缴纳情况', checked: false },
+          { item: '审查劳动合同条款', checked: false },
+          { item: '了解公司发展前景和行业地位', checked: false },
+          { item: '咨询行业内的专业人士', checked: false }
+        ]
+      },
+      investment: {
+        events: [
+          { date: '2012-01', round: '天使轮', amount: '数百万美元', investors: ['SIG海纳亚洲'], valuation: '5000万美元' },
+          { date: '2013-01', round: 'A轮', amount: '数千万美元', investors: ['源码资本', 'IDG'], valuation: '3亿美元' },
+          { date: '2014-01', round: 'B轮', amount: '1亿美元', investors: ['红杉资本', 'Coatue'], valuation: '10亿美元' },
+          { date: '2016-01', round: 'C轮', amount: '10亿美元', investors: ['红杉资本', '泛大西洋'], valuation: '110亿美元' },
+          { date: '2017-01', round: 'D轮', amount: '20亿美元', investors: ['软银愿景', '红杉资本'], valuation: '200亿美元' },
+          { date: '2018-01', round: 'E轮', amount: '40亿美元', investors: ['软银愿景', 'General Atlantic'], valuation: '750亿美元' },
+          { date: '2020-01', round: 'Pre-IPO', amount: '未披露', investors: ['红杉资本', '泛大西洋'], valuation: '1800亿美元' }
+        ],
+        roundDist: { '天使轮': 1, 'A轮': 1, 'B轮': 1, 'C轮': 1, 'D轮': 1, 'E轮': 1, 'Pre-IPO': 1 },
+        portfolioCompanies: [
+          { name: 'Pico VR', industry: '虚拟现实', investAmount: '9000万欧元', shareRatio: '100%', status: '已退出' },
+          { name: '沐瞳科技', industry: '游戏', investAmount: '约40亿元', shareRatio: '100%', status: '持有中' }
+        ],
+        externalInvestment: {
+          totalAmount: '约70亿美元',
+          investorCount: 12,
+          latestRound: 'Pre-IPO',
+          latestValuation: '1800亿美元'
+        }
+      },
+      socialInsurance: {
+        trend: [95000, 108000, 120000, 132000, 142000],
+        trendYears: [2020, 2021, 2022, 2023, 2024],
+        ratios: { '养老保险': 95.2, '医疗保险': 96.8, '失业保险': 93.5, '工伤保险': 94.8, '生育保险': 93.0, '住房公积金': 88.5 },
+        actualVsExpected: { actual: 142000, expected: 150000, ratio: 0.947 },
+        industryCompare: { companyName: '字节跳动', pensionRate: 94.7, industryAvg: 88.5, industryTop: 97.2 }
+      },
+      stock: {
+        markets: [],
+        priceTrend: [],
+        priceMonths: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        financials: { pe: 0, pb: 0, eps: 0, dividendYield: 0, revenueGrowth: 15.4, profitGrowth: 25.0 }
+      },
+      culture: {
+        scores: { innovation: 8.5, collaboration: 7.2, transparency: 6.5, employeeCare: 5.8, growthSpace: 8.0 },
+        tags: ['数据驱动', '快速迭代', '用户至上', '拥抱变化', '追求卓越', '扁平管理', '创新突破', '自我驱动'],
+        benefits: ['五险一金（全额缴纳）', '补充商业保险', '年度健康体检', '带薪年假（15-20天）', '免费三餐', '健身房/运动补贴', '年终奖金（1-6个月）', '股票期权', '租房补贴', '年度旅游/团建', '子女教育补贴', '弹性工作时间'],
+        activities: [
+          { type: '培训', name: '新员工入职训练营', frequency: '每月', desc: '为期一周的系统培训，涵盖企业文化、业务知识和技能提升' },
+          { type: '培训', name: '技术分享会', frequency: '每周', desc: '内部技术交流，分享前沿技术和最佳实践' },
+          { type: '活动', name: '黑客马拉松', frequency: '每季度', desc: '48小时创新挑战赛，鼓励跨部门协作创新' },
+          { type: '活动', name: '户外团建', frequency: '每半年', desc: '户外拓展训练和团队建设活动' },
+          { type: '培训', name: '领导力发展计划', frequency: '每年', desc: '针对管理层的领导力提升培训项目' },
+          { type: '活动', name: '公益志愿者活动', frequency: '每月', desc: '组织员工参与社区公益和志愿服务' }
+        ]
+      }
+    };
+  },
+  '腾讯控股': function() {
+    return {
+      basicInfo: {
+        name: '腾讯控股',
+        industry: '互联网/科技',
+        city: '深圳',
+        legalPerson: '马化腾',
+        status: '存续',
+        registeredCapital: '500万元',
+        establishDate: '1998-11-11',
+        employeeCount: 105000,
+        registeredAddress: '深圳市南山区科技园科技中一路腾讯大厦'
+      },
+      annualReport: {
+        years: [2020, 2021, 2022, 2023, 2024],
+        revenue: [4820, 5601, 5545, 6090, 6600],
+        profit: [1227, 1237, 1156, 1448, 1680],
+        financialIndicators: {
+          grossMargin: 52,
+          netMargin: 25,
+          roe: 22,
+          debtRatio: 42,
+          currentRatio: 1.8,
+          quickRatio: 1.5
+        },
+        summary: [
+          { year: 2024, summary: '腾讯控股2024年度营业收入达到6600亿元，同比增长8.4%，净利润1680亿元。游戏业务海外扩张顺利，微信生态持续繁荣。' },
+          { year: 2023, summary: '腾讯控股2023年度实现营收6090亿元，净利润1448亿元。视频号商业化加速，AI大模型"混元"成功发布。' },
+          { year: 2022, summary: '腾讯控股2022年度营收5545亿元，净利润1156亿元。面对行业调整期，公司主动优化业务结构，聚焦核心业务。' },
+          { year: 2021, summary: '腾讯控股2021年度营收5601亿元，净利润1237亿元。公司持续加大在云服务和产业互联网领域的投入。' },
+          { year: 2020, summary: '腾讯控股2020年度营收4820亿元，净利润1227亿元。疫情期间线上业务快速增长，游戏和社交广告表现亮眼。' }
+        ]
+      },
+      arbitration: {
+        total: 98,
+        types: { '工资拖欠': 22, '违法解除': 28, '加班费争议': 18, '工伤赔偿': 15, '社保纠纷': 10, '竞业限制': 5 },
+        trend: [28, 32, 38],
+        trendYears: ['2022', '2023', '2024'],
+        cases: [
+          { caseNo: '劳仲案字[2024]第056号', type: '违法解除', applicant: '员工A', result: '部分支持', amount: '15.2万元', date: '2024-02-20' },
+          { caseNo: '劳仲案字[2024]第098号', type: '竞业限制', applicant: '员工B', result: '裁决支持', amount: '68.0万元', date: '2024-06-15' },
+          { caseNo: '劳仲案字[2023]第145号', type: '工资拖欠', applicant: '员工C', result: '裁决支持', amount: '12.8万元', date: '2023-04-10' },
+          { caseNo: '劳仲案字[2023]第267号', type: '加班费争议', applicant: '员工D', result: '部分支持', amount: '8.5万元', date: '2023-09-05' },
+          { caseNo: '劳仲案字[2022]第189号', type: '工伤赔偿', applicant: '员工E', result: '调解成功', amount: '22.0万元', date: '2022-07-18' },
+          { caseNo: '劳仲案字[2022]第334号', type: '社保纠纷', applicant: '员工F', result: '裁决支持', amount: '5.2万元', date: '2022-11-22' }
+        ]
+      },
+      lawsuit: {
+        total: 156,
+        types: { '合同纠纷': 52, '劳动争议': 35, '知识产权': 38, '不正当竞争': 18, '侵权责任': 8, '股权转让': 5 },
+        plaintiffRatio: 0.55,
+        defendantRatio: 0.45,
+        cases: [
+          { caseNo: '(2024)粤民初1234号', type: '知识产权', role: '原告', opponent: '某某科技公司', result: '胜诉', date: '2024-01-15' },
+          { caseNo: '(2024)粤民初2345号', type: '不正当竞争', role: '原告', opponent: '某某游戏公司', result: '胜诉', date: '2024-03-20' },
+          { caseNo: '(2023)粤民初3456号', type: '合同纠纷', role: '被告', opponent: '某某传媒公司', result: '调解', date: '2023-06-10' },
+          { caseNo: '(2023)粤民初4567号', type: '劳动争议', role: '被告', opponent: '前员工王某', result: '部分胜诉', date: '2023-08-25' },
+          { caseNo: '(2022)粤民初5678号', type: '知识产权', role: '原告', opponent: '某某网络公司', result: '胜诉', date: '2022-10-15' },
+          { caseNo: '(2022)粤民初6789号', type: '合同纠纷', role: '原告', opponent: '某某投资公司', result: '部分胜诉', date: '2022-04-20' },
+          { caseNo: '(2024)粤民初7890号', type: '侵权责任', role: '被告', opponent: '某某贸易公司', result: '调解', date: '2024-05-10' },
+          { caseNo: '(2023)粤民初8901号', type: '不正当竞争', role: '原告', opponent: '某某科技公司', result: '部分胜诉', date: '2023-11-08' }
+        ]
+      },
+      overtime: {
+        scores: { workIntensity: 7.5, overtimeFrequency: 7.8, weekendOvertime: 6.5, overtimeCompensation: 6.5, workLifeBalance: 5.5 },
+        satisfactionScore: 4.0,
+        satisfactionTotal: 6200,
+        tagCloud: [
+          { text: '福利待遇好', positive: true, weight: 185 },
+          { text: '技术氛围好', positive: true, weight: 175 },
+          { text: '团队氛围好', positive: true, weight: 170 },
+          { text: '培训体系完善', positive: true, weight: 155 },
+          { text: '加班较多', positive: false, weight: 160 },
+          { text: '晋升困难', positive: false, weight: 145 },
+          { text: '股票期权', positive: true, weight: 165 },
+          { text: '领导nice', positive: true, weight: 150 },
+          { text: '流程繁琐', positive: false, weight: 130 },
+          { text: '弹性工作', positive: true, weight: 140 }
+        ],
+        reviews: [
+          { text: '公司技术栈很新，能学到很多东西，同事之间氛围融洽，福利待遇在互联网行业算很好的。', sentiment: 'positive', rating: 4.5, date: '2024-05-08', position: '前端工程师' },
+          { text: '福利待遇不错，有免费三餐和健身房，年终奖也比较丰厚，股票期权价值高。', sentiment: 'positive', rating: 4.3, date: '2024-04-15', position: '后端工程师' },
+          { text: '扁平化管理，领导比较随和，沟通成本低，工作效率高。', sentiment: 'positive', rating: 4.2, date: '2024-03-10', position: '产品经理' },
+          { text: '加班比较严重，尤其是项目上线期间，但相比其他大厂好一些。', sentiment: 'negative', rating: 3.5, date: '2024-02-20', position: 'UI设计师' },
+          { text: '晋升通道不够清晰，需要熬资历，年轻人机会不多。', sentiment: 'negative', rating: 3.2, date: '2024-01-10', position: '数据分析师' },
+          { text: '跨部门协作比较困难，流程繁琐，效率偏低。', sentiment: 'negative', rating: 3.5, date: '2023-12-15', position: '运营专员' }
+        ]
+      },
+      bossRecruit: {
+        jobCount: 280,
+        activityScore: 85,
+        jobTypes: { '技术开发': 120, '产品设计': 55, '运营推广': 40, '市场销售': 30, '职能支持': 20, '数据分析': 15 },
+        recruitTrend: [240, 250, 260, 270, 275, 280],
+        recruitMonths: ['1月', '2月', '3月', '4月', '5月', '6月']
+      },
+      jobAdvice: {
+        overallScore: 72,
+        riskLevel: '低',
+        riskColor: '#00d4ff',
+        advantages: ['行业前景广阔', '技术实力强', '品牌知名度高', '薪酬竞争力强', '员工福利完善'],
+        disadvantages: ['加班强度大', '晋升周期较长', '跨部门协作困难', '绩效考核严格'],
+        suggestions: [
+          '建议通过多种渠道了解目标部门的工作氛围和文化',
+          '面试时可以询问直属领导的管理风格和团队协作方式',
+          '关注公司近期的组织架构调整和战略方向变化',
+          '了解目标岗位的绩效考核标准和晋升路径',
+          '建议与在职或离职员工进行深入沟通，获取真实信息',
+          '注意查看劳动合同中的竞业限制和保密条款',
+          '了解公司的期权/股权激励政策和兑现条件'
+        ],
+        checklist: [
+          { item: '核实公司工商注册信息', checked: false },
+          { item: '查询公司法律诉讼记录', checked: false },
+          { item: '了解公司财务状况', checked: false },
+          { item: '调查公司口碑和员工评价', checked: false },
+          { item: '核实薪资水平和市场对比', checked: false },
+          { item: '了解加班文化和工作强度', checked: false },
+          { item: '确认社保公积金缴纳情况', checked: false },
+          { item: '审查劳动合同条款', checked: false },
+          { item: '了解公司发展前景和行业地位', checked: false },
+          { item: '咨询行业内的专业人士', checked: false }
+        ]
+      },
+      investment: {
+        events: [
+          { date: '1998-01', round: '天使轮', amount: '220万美元', investors: ['IDG', '李泽楷'], valuation: '550万美元' },
+          { date: '2000-01', round: 'A轮', amount: '1260万美元', investors: ['IDG', '盈科数码'], valuation: '2亿美元' },
+          { date: '2004-01', round: 'IPO', amount: '港股上市', investors: ['公众投资者'], valuation: '约60亿港元' }
+        ],
+        roundDist: { '天使轮': 1, 'A轮': 1, 'IPO': 1 },
+        portfolioCompanies: [
+          { name: '某某游戏工作室', industry: '游戏', investAmount: '5000万元', shareRatio: '20%', status: '持有中' },
+          { name: '某某AI公司', industry: '人工智能', investAmount: '8000万元', shareRatio: '15%', status: '持有中' },
+          { name: '某某电商公司', industry: '电子商务', investAmount: '1.2亿元', shareRatio: '10%', status: '已退出' }
+        ],
+        externalInvestment: {
+          totalAmount: '约1480万美元（早期融资）',
+          investorCount: 5,
+          latestRound: 'IPO（港股00700.HK）',
+          latestValuation: '36000亿港元'
+        }
+      },
+      socialInsurance: {
+        trend: [82000, 88000, 93000, 97000, 101000],
+        trendYears: [2020, 2021, 2022, 2023, 2024],
+        ratios: { '养老保险': 97.5, '医疗保险': 98.2, '失业保险': 95.8, '工伤保险': 96.5, '生育保险': 95.0, '住房公积金': 92.0 },
+        actualVsExpected: { actual: 101000, expected: 105000, ratio: 0.962 },
+        industryCompare: { companyName: '腾讯控股', pensionRate: 96.2, industryAvg: 88.5, industryTop: 97.2 }
+      },
+      stock: {
+        markets: [
+          { market: '港股', code: '00700.HK', name: '腾讯控股（港股）', currentPrice: 380, change: 2.5, marketCap: '36000亿港元' }
+        ],
+        priceTrend: [310, 325, 340, 355, 348, 362, 370, 365, 375, 380, 378, 380],
+        priceMonths: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        financials: { pe: 21.4, pb: 4.2, eps: 17.8, dividendYield: 1.2, revenueGrowth: 8.4, profitGrowth: 16.0 }
+      },
+      culture: {
+        scores: { innovation: 7.8, collaboration: 8.0, transparency: 7.5, employeeCare: 7.2, growthSpace: 7.8 },
+        tags: ['用户至上', '科技向善', '开放包容', '追求卓越', '团队协作', '持续学习', '务实高效', '社会责任'],
+        benefits: ['五险一金（全额缴纳）', '补充商业保险', '年度健康体检', '带薪年假（15-20天）', '免费三餐/餐补', '健身房/运动补贴', '年终奖金（3-6个月）', '股票期权/限制性股票', '租房补贴/人才公寓', '子女教育补贴', '年度旅游/团建', '弹性工作时间'],
+        activities: [
+          { type: '培训', name: '新员工入职训练营', frequency: '每月', desc: '为期一周的系统培训，涵盖企业文化、业务知识和技能提升' },
+          { type: '培训', name: '技术分享会', frequency: '每周', desc: '内部技术交流，分享前沿技术和最佳实践' },
+          { type: '活动', name: '黑客马拉松', frequency: '每季度', desc: '48小时创新挑战赛，鼓励跨部门协作创新' },
+          { type: '活动', name: '户外团建', frequency: '每半年', desc: '户外拓展训练和团队建设活动' },
+          { type: '培训', name: '领导力发展计划', frequency: '每年', desc: '针对管理层的领导力提升培训项目' },
+          { type: '活动', name: '公益志愿者活动', frequency: '每月', desc: '组织员工参与社区公益和志愿服务' }
+        ]
+      }
+    };
+  },
+  '阿里巴巴': function() {
+    return {
+      basicInfo: {
+        name: '阿里巴巴',
+        industry: '电子商务/互联网',
+        city: '杭州',
+        legalPerson: '蒋芳（代理）',
+        status: '存续',
+        registeredCapital: '599亿元',
+        establishDate: '1999-09-09',
+        employeeCount: 200000,
+        registeredAddress: '杭州市余杭区文一西路969号'
+      },
+      annualReport: {
+        years: [2020, 2021, 2022, 2023, 2024],
+        revenue: [7172, 8530, 8530, 8686, 9411],
+        profit: [1492, 1432, 619, 713, 1300],
+        financialIndicators: {
+          grossMargin: 38,
+          netMargin: 14,
+          roe: 12,
+          debtRatio: 55,
+          currentRatio: 1.2,
+          quickRatio: 1.0
+        },
+        summary: [
+          { year: 2024, summary: '阿里巴巴2024年度营业收入达到9411亿元，同比增长8.3%，净利润1300亿元。公司完成组织架构改革，分拆上市计划推进中。' },
+          { year: 2023, summary: '阿里巴巴2023年度实现营收8686亿元，净利润713亿元。公司启动"1+6+N"组织变革，各业务集团独立运营。' },
+          { year: 2022, summary: '阿里巴巴2022年度营收8530亿元，净利润619亿元。受反垄断罚款和市场环境影响，利润大幅下滑。' },
+          { year: 2021, summary: '阿里巴巴2021年度营收8530亿元，净利润1432亿元。公司被处以182亿元反垄断罚款，业务增速放缓。' },
+          { year: 2020, summary: '阿里巴巴2020年度营收7172亿元，净利润1492亿元。天猫双十一成交额达4982亿元，云计算业务快速增长。' }
+        ]
+      },
+      arbitration: {
+        total: 268,
+        types: { '工资拖欠': 65, '违法解除': 72, '加班费争议': 48, '工伤赔偿': 35, '社保纠纷': 28, '竞业限制': 20 },
+        trend: [75, 85, 108],
+        trendYears: ['2022', '2023', '2024'],
+        cases: [
+          { caseNo: '劳仲案字[2024]第112号', type: '违法解除', applicant: '员工A', result: '裁决支持', amount: '22.5万元', date: '2024-03-20' },
+          { caseNo: '劳仲案字[2024]第178号', type: '工资拖欠', applicant: '员工B', result: '裁决支持', amount: '15.8万元', date: '2024-05-15' },
+          { caseNo: '劳仲案字[2023]第234号', type: '竞业限制', applicant: '员工C', result: '部分支持', amount: '55.0万元', date: '2023-07-10' },
+          { caseNo: '劳仲案字[2023]第345号', type: '加班费争议', applicant: '员工D', result: '部分支持', amount: '10.2万元', date: '2023-10-25' },
+          { caseNo: '劳仲案字[2022]第156号', type: '工伤赔偿', applicant: '员工E', result: '调解成功', amount: '28.0万元', date: '2022-05-18' },
+          { caseNo: '劳仲案字[2022]第289号', type: '社保纠纷', applicant: '员工F', result: '裁决支持', amount: '6.8万元', date: '2022-09-12' }
+        ]
+      },
+      lawsuit: {
+        total: 425,
+        types: { '合同纠纷': 128, '劳动争议': 95, '知识产权': 85, '不正当竞争': 52, '侵权责任': 38, '股权转让': 27 },
+        plaintiffRatio: 0.40,
+        defendantRatio: 0.60,
+        cases: [
+          { caseNo: '(2024)浙民初1234号', type: '不正当竞争', role: '原告', opponent: '某某电商公司', result: '胜诉', date: '2024-02-10' },
+          { caseNo: '(2024)浙民初2345号', type: '知识产权', role: '原告', opponent: '某某科技公司', result: '胜诉', date: '2024-04-15' },
+          { caseNo: '(2023)浙民初3456号', type: '合同纠纷', role: '被告', opponent: '某某品牌方', result: '调解', date: '2023-06-20' },
+          { caseNo: '(2023)浙民初4567号', type: '劳动争议', role: '被告', opponent: '前员工张某', result: '部分胜诉', date: '2023-09-15' },
+          { caseNo: '(2022)浙民初5678号', type: '侵权责任', role: '被告', opponent: '某某贸易公司', result: '败诉', date: '2022-08-10' },
+          { caseNo: '(2022)浙民初6789号', type: '知识产权', role: '原告', opponent: '某某网络公司', result: '胜诉', date: '2022-03-25' },
+          { caseNo: '(2024)浙民初7890号', type: '合同纠纷', role: '原告', opponent: '某某物流公司', result: '部分胜诉', date: '2024-01-20' },
+          { caseNo: '(2023)浙民初8901号', type: '不正当竞争', role: '被告', opponent: '某某平台', result: '部分胜诉', date: '2023-11-10' }
+        ]
+      },
+      overtime: {
+        scores: { workIntensity: 8.5, overtimeFrequency: 8.8, weekendOvertime: 7.5, overtimeCompensation: 5.5, workLifeBalance: 4.2 },
+        satisfactionScore: 3.5,
+        satisfactionTotal: 7200,
+        tagCloud: [
+          { text: '技术氛围好', positive: true, weight: 170 },
+          { text: '成长空间大', positive: true, weight: 155 },
+          { text: '福利待遇好', positive: true, weight: 160 },
+          { text: '平台大', positive: true, weight: 145 },
+          { text: '加班严重', positive: false, weight: 185 },
+          { text: '996文化', positive: false, weight: 180 },
+          { text: '内卷严重', positive: false, weight: 175 },
+          { text: '管理混乱', positive: false, weight: 150 },
+          { text: '频繁裁员', positive: false, weight: 165 },
+          { text: '股票期权', positive: true, weight: 140 },
+          { text: '晋升困难', positive: false, weight: 135 },
+          { text: '培训体系完善', positive: true, weight: 130 }
+        ],
+        reviews: [
+          { text: '公司技术栈很新，能接触到海量数据和复杂场景，个人成长很快。', sentiment: 'positive', rating: 4.0, date: '2024-05-05', position: '前端工程师' },
+          { text: '福利待遇不错，有免费三餐和健身房，年终奖也比较丰厚。', sentiment: 'positive', rating: 3.8, date: '2024-04-18', position: '后端工程师' },
+          { text: '平台大，业务场景丰富，能学到很多东西，但加班确实多。', sentiment: 'positive', rating: 3.5, date: '2024-03-12', position: '产品经理' },
+          { text: '加班比较严重，尤其是双11等大促期间，经常需要通宵。', sentiment: 'negative', rating: 2.5, date: '2024-02-25', position: 'UI设计师' },
+          { text: '公司组织架构调整频繁，裁员风险较高，工作不够稳定。', sentiment: 'negative', rating: 2.8, date: '2024-01-18', position: '数据分析师' },
+          { text: '晋升通道不够清晰，内卷严重，绩效考核压力较大。', sentiment: 'negative', rating: 3.0, date: '2023-12-22', position: '运营专员' }
+        ]
+      },
+      bossRecruit: {
+        jobCount: 320,
+        activityScore: 88,
+        jobTypes: { '技术开发': 130, '产品设计': 60, '运营推广': 55, '市场销售': 35, '职能支持': 25, '数据分析': 15 },
+        recruitTrend: [280, 290, 300, 310, 315, 320],
+        recruitMonths: ['1月', '2月', '3月', '4月', '5月', '6月']
+      },
+      jobAdvice: {
+        overallScore: 52,
+        riskLevel: '中',
+        riskColor: '#f0b90b',
+        advantages: ['行业前景广阔', '技术实力强', '品牌知名度高', '平台大'],
+        disadvantages: ['加班强度大', '组织架构调整频繁', '裁员风险', '内卷严重', '管理混乱'],
+        suggestions: [
+          '建议通过多种渠道了解目标部门的工作氛围和文化',
+          '面试时可以询问直属领导的管理风格和团队协作方式',
+          '关注公司近期的组织架构调整和战略方向变化',
+          '了解目标岗位的绩效考核标准和晋升路径',
+          '建议与在职或离职员工进行深入沟通，获取真实信息',
+          '注意查看劳动合同中的竞业限制和保密条款',
+          '了解公司的期权/股权激励政策和兑现条件'
+        ],
+        checklist: [
+          { item: '核实公司工商注册信息', checked: false },
+          { item: '查询公司法律诉讼记录', checked: false },
+          { item: '了解公司财务状况', checked: false },
+          { item: '调查公司口碑和员工评价', checked: false },
+          { item: '核实薪资水平和市场对比', checked: false },
+          { item: '了解加班文化和工作强度', checked: false },
+          { item: '确认社保公积金缴纳情况', checked: false },
+          { item: '审查劳动合同条款', checked: false },
+          { item: '了解公司发展前景和行业地位', checked: false },
+          { item: '咨询行业内的专业人士', checked: false }
+        ]
+      },
+      investment: {
+        events: [
+          { date: '1999-01', round: '天使轮', amount: '2000万美元', investors: ['高盛', '富达投资'], valuation: '5000万美元' },
+          { date: '2000-01', round: 'A轮', amount: '2000万美元', investors: ['软银'], valuation: '10亿美元' },
+          { date: '2004-01', round: 'B轮', amount: '8200万美元', investors: ['软银'], valuation: '40亿美元' },
+          { date: '2007-01', round: 'IPO', amount: 'BABA纽交所上市', investors: ['公众投资者'], valuation: '约150亿美元' },
+          { date: '2014-01', round: '二次上市', amount: '港股9988.HK上市', investors: ['公众投资者'], valuation: '约2500亿美元' }
+        ],
+        roundDist: { '天使轮': 1, 'A轮': 1, 'B轮': 1, 'IPO': 1, '二次上市': 1 },
+        portfolioCompanies: [
+          { name: '某某云计算公司', industry: '云计算', investAmount: '3亿元', shareRatio: '15%', status: '持有中' },
+          { name: '某某物流公司', industry: '物流', investAmount: '5亿元', shareRatio: '10%', status: '持有中' },
+          { name: '某某本地生活公司', industry: '本地生活', investAmount: '8亿元', shareRatio: '12%', status: '持有中' }
+        ],
+        externalInvestment: {
+          totalAmount: '约1.2亿美元（早期融资）',
+          investorCount: 8,
+          latestRound: '港股9988.HK二次上市',
+          latestValuation: '2100亿美元'
+        }
+      },
+      socialInsurance: {
+        trend: [165000, 172000, 178000, 182000, 185000],
+        trendYears: [2020, 2021, 2022, 2023, 2024],
+        ratios: { '养老保险': 94.5, '医疗保险': 95.8, '失业保险': 91.2, '工伤保险': 93.5, '生育保险': 90.8, '住房公积金': 85.5 },
+        actualVsExpected: { actual: 185000, expected: 200000, ratio: 0.925 },
+        industryCompare: { companyName: '阿里巴巴', pensionRate: 92.5, industryAvg: 88.5, industryTop: 97.2 }
+      },
+      stock: {
+        markets: [
+          { market: '美股', code: 'BABA', name: '阿里巴巴（美股）', currentPrice: 85, change: -1.5, marketCap: '2100亿美元' },
+          { market: '港股', code: '9988.HK', name: '阿里巴巴（港股）', currentPrice: 78.5, change: -1.2, marketCap: '16800亿港元' }
+        ],
+        priceTrend: [72, 75, 78, 82, 80, 85, 88, 86, 84, 85, 83, 85],
+        priceMonths: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        financials: { pe: 16.2, pb: 1.5, eps: 5.25, dividendYield: 1.0, revenueGrowth: 8.3, profitGrowth: 82.3 }
+      },
+      culture: {
+        scores: { innovation: 7.5, collaboration: 7.0, transparency: 6.0, employeeCare: 5.5, growthSpace: 6.5 },
+        tags: ['客户第一', '团队合作', '拥抱变化', '诚信', '激情', '敬业', '数据驱动', '快速迭代'],
+        benefits: ['五险一金（全额缴纳）', '补充商业保险', '年度健康体检', '带薪年假（15-20天）', '免费三餐/餐补', '健身房/运动补贴', '年终奖金（1-6个月）', '股票期权/限制性股票', '租房补贴/人才公寓', 'iHome无息贷款', '年度旅游/团建', '弹性工作时间'],
+        activities: [
+          { type: '培训', name: '新员工入职训练营', frequency: '每月', desc: '为期一周的系统培训，涵盖企业文化、业务知识和技能提升' },
+          { type: '培训', name: '技术分享会', frequency: '每周', desc: '内部技术交流，分享前沿技术和最佳实践' },
+          { type: '活动', name: '黑客马拉松', frequency: '每季度', desc: '48小时创新挑战赛，鼓励跨部门协作创新' },
+          { type: '活动', name: '户外团建', frequency: '每半年', desc: '户外拓展训练和团队建设活动' },
+          { type: '培训', name: '领导力发展计划', frequency: '每年', desc: '针对管理层的领导力提升培训项目' },
+          { type: '活动', name: '公益志愿者活动', frequency: '每月', desc: '组织员工参与社区公益和志愿服务' }
+        ]
+      }
+    };
+  },
+  '华为技术': function() {
+    return {
+      basicInfo: {
+        name: '华为技术',
+        industry: '通信设备/智能制造',
+        city: '深圳',
+        legalPerson: '赵明刚',
+        status: '存续',
+        registeredCapital: '404亿元',
+        establishDate: '1987-09-15',
+        employeeCount: 207000,
+        registeredAddress: '深圳市龙岗区坂田华为基地'
+      },
+      annualReport: {
+        years: [2020, 2021, 2022, 2023, 2024],
+        revenue: [8913, 8913, 6423, 7042, 7800],
+        profit: [646, 1137, 356, 870, 980],
+        financialIndicators: {
+          grossMargin: 48,
+          netMargin: 12,
+          roe: 15,
+          debtRatio: 62,
+          currentRatio: 1.3,
+          quickRatio: 1.1
+        },
+        summary: [
+          { year: 2024, summary: '华为2024年度营业收入达到7800亿元，同比增长10.8%，净利润980亿元。鸿蒙生态持续壮大，汽车业务快速增长，芯片自研取得突破。' },
+          { year: 2023, summary: '华为2023年度实现营收7042亿元，净利润870亿元。Mate 60系列搭载国产芯片回归，鸿蒙系统加速生态建设。' },
+          { year: 2022, summary: '华为2022年度营收6423亿元，净利润356亿元。受美国制裁影响，手机业务大幅下滑，但企业业务和汽车业务增长。' },
+          { year: 2021, summary: '华为2021年度营收8913亿元，净利润1137亿元。面对制裁压力，公司加速业务转型，加大研发投入。' },
+          { year: 2020, summary: '华为2020年度营收8913亿元，净利润646亿元。美国制裁全面升级，芯片供应受限，公司面临严峻挑战。' }
+        ]
+      },
+      arbitration: {
+        total: 156,
+        types: { '工资拖欠': 38, '违法解除': 42, '加班费争议': 35, '工伤赔偿': 22, '社保纠纷': 12, '竞业限制': 7 },
+        trend: [42, 50, 64],
+        trendYears: ['2022', '2023', '2024'],
+        cases: [
+          { caseNo: '劳仲案字[2024]第078号', type: '违法解除', applicant: '员工A', result: '部分支持', amount: '18.0万元', date: '2024-02-28' },
+          { caseNo: '劳仲案字[2024]第134号', type: '加班费争议', applicant: '员工B', result: '裁决支持', amount: '8.5万元', date: '2024-05-10' },
+          { caseNo: '劳仲案字[2023]第198号', type: '工资拖欠', applicant: '员工C', result: '裁决支持', amount: '12.0万元', date: '2023-06-15' },
+          { caseNo: '劳仲案字[2023]第312号', type: '竞业限制', applicant: '员工D', result: '部分支持', amount: '35.0万元', date: '2023-10-20' },
+          { caseNo: '劳仲案字[2022]第145号', type: '工伤赔偿', applicant: '员工E', result: '调解成功', amount: '25.0万元', date: '2022-04-18' },
+          { caseNo: '劳仲案字[2022]第278号', type: '社保纠纷', applicant: '员工F', result: '裁决支持', amount: '4.5万元', date: '2022-08-25' }
+        ]
+      },
+      lawsuit: {
+        total: 289,
+        types: { '合同纠纷': 82, '劳动争议': 65, '知识产权': 78, '不正当竞争': 32, '侵权责任': 22, '股权转让': 10 },
+        plaintiffRatio: 0.50,
+        defendantRatio: 0.50,
+        cases: [
+          { caseNo: '(2024)粤民初1234号', type: '知识产权', role: '原告', opponent: '某某科技公司', result: '胜诉', date: '2024-01-20' },
+          { caseNo: '(2024)粤民初2345号', type: '合同纠纷', role: '原告', opponent: '某某通信公司', result: '胜诉', date: '2024-03-15' },
+          { caseNo: '(2023)粤民初3456号', type: '知识产权', role: '被告', opponent: '某某专利公司', result: '部分胜诉', date: '2023-05-20' },
+          { caseNo: '(2023)粤民初4567号', type: '劳动争议', role: '被告', opponent: '前员工李某', result: '部分胜诉', date: '2023-08-10' },
+          { caseNo: '(2022)粤民初5678号', type: '不正当竞争', role: '原告', opponent: '某某网络公司', result: '胜诉', date: '2022-06-15' },
+          { caseNo: '(2022)粤民初6789号', type: '合同纠纷', role: '被告', opponent: '某某供应商', result: '调解', date: '2022-10-20' },
+          { caseNo: '(2024)粤民初7890号', type: '知识产权', role: '原告', opponent: '某某芯片公司', result: '胜诉', date: '2024-04-08' },
+          { caseNo: '(2023)粤民初8901号', type: '侵权责任', role: '原告', opponent: '某某贸易公司', result: '部分胜诉', date: '2023-12-05' }
+        ]
+      },
+      overtime: {
+        scores: { workIntensity: 9.8, overtimeFrequency: 9.5, weekendOvertime: 9.0, overtimeCompensation: 4.5, workLifeBalance: 2.5 },
+        satisfactionScore: 3.0,
+        satisfactionTotal: 9500,
+        tagCloud: [
+          { text: '技术实力强', positive: true, weight: 190 },
+          { text: '成长空间大', positive: true, weight: 175 },
+          { text: '薪酬竞争力强', positive: true, weight: 170 },
+          { text: '加班严重', positive: false, weight: 195 },
+          { text: '狼性文化', positive: false, weight: 185 },
+          { text: '压力太大', positive: false, weight: 180 },
+          { text: '工作生活平衡差', positive: false, weight: 175 },
+          { text: '培训体系完善', positive: true, weight: 155 },
+          { text: '股票分红', positive: true, weight: 165 },
+          { text: '频繁出差', positive: false, weight: 150 },
+          { text: '创新能力强', positive: true, weight: 160 },
+          { text: '绩效考核严格', positive: false, weight: 145 }
+        ],
+        reviews: [
+          { text: '技术实力很强，能接触到最前沿的通信技术，个人成长空间大。', sentiment: 'positive', rating: 4.0, date: '2024-05-12', position: '通信工程师' },
+          { text: '薪酬待遇在行业内很有竞争力，年终奖丰厚，内部股票分红可观。', sentiment: 'positive', rating: 3.8, date: '2024-04-20', position: '软件工程师' },
+          { text: '培训体系完善，新员工有系统的入职培训，技术分享氛围好。', sentiment: 'positive', rating: 3.5, date: '2024-03-08', position: '产品经理' },
+          { text: '加班非常严重，基本没有工作生活平衡，狼性文化压力大。', sentiment: 'negative', rating: 2.0, date: '2024-02-15', position: '硬件工程师' },
+          { text: '绩效考核非常严格，末位淘汰让人很有紧迫感，精神压力很大。', sentiment: 'negative', rating: 2.5, date: '2024-01-20', position: '测试工程师' },
+          { text: '频繁出差，尤其是海外项目，对家庭生活影响很大。', sentiment: 'negative', rating: 2.8, date: '2023-12-18', position: '销售经理' }
+        ]
+      },
+      bossRecruit: {
+        jobCount: 380,
+        activityScore: 90,
+        jobTypes: { '技术开发': 160, '产品设计': 50, '运营推广': 40, '市场销售': 55, '职能支持': 40, '数据分析': 35 },
+        recruitTrend: [320, 340, 355, 365, 375, 380],
+        recruitMonths: ['1月', '2月', '3月', '4月', '5月', '6月']
+      },
+      jobAdvice: {
+        overallScore: 48,
+        riskLevel: '中',
+        riskColor: '#f0b90b',
+        advantages: ['技术实力强', '薪酬竞争力强', '成长空间大', '创新能力强', '行业地位高'],
+        disadvantages: ['加班强度极大', '工作生活平衡差', '狼性文化压力大', '绩效考核严格', '频繁出差'],
+        suggestions: [
+          '建议通过多种渠道了解目标部门的工作氛围和文化',
+          '面试时可以询问直属领导的管理风格和团队协作方式',
+          '关注公司近期的组织架构调整和战略方向变化',
+          '了解目标岗位的绩效考核标准和晋升路径',
+          '建议与在职或离职员工进行深入沟通，获取真实信息',
+          '注意查看劳动合同中的竞业限制和保密条款',
+          '了解公司的期权/股权激励政策和兑现条件'
+        ],
+        checklist: [
+          { item: '核实公司工商注册信息', checked: false },
+          { item: '查询公司法律诉讼记录', checked: false },
+          { item: '了解公司财务状况', checked: false },
+          { item: '调查公司口碑和员工评价', checked: false },
+          { item: '核实薪资水平和市场对比', checked: false },
+          { item: '了解加班文化和工作强度', checked: false },
+          { item: '确认社保公积金缴纳情况', checked: false },
+          { item: '审查劳动合同条款', checked: false },
+          { item: '了解公司发展前景和行业地位', checked: false },
+          { item: '咨询行业内的专业人士', checked: false }
+        ]
+      },
+      investment: {
+        events: [
+          { date: '1987-01', round: '创立', amount: '2.1万元人民币', investors: ['任正非'], valuation: '2.1万元' },
+          { date: '1990-01', round: '员工持股', amount: '内部融资', investors: ['全体员工'], valuation: '未披露' }
+        ],
+        roundDist: { '创立': 1, '员工持股': 1 },
+        portfolioCompanies: [
+          { name: '海思半导体', industry: '芯片设计', investAmount: '内部孵化', shareRatio: '100%', status: '持有中' },
+          { name: '哈勃投资', industry: '产业投资', investAmount: '数十亿元', shareRatio: '100%', status: '持有中' }
+        ],
+        externalInvestment: {
+          totalAmount: '未融资（100%员工持股）',
+          investorCount: 0,
+          latestRound: '未上市',
+          latestValuation: '未披露'
+        }
+      },
+      socialInsurance: {
+        trend: [180000, 185000, 190000, 195000, 200000],
+        trendYears: [2020, 2021, 2022, 2023, 2024],
+        ratios: { '养老保险': 97.8, '医疗保险': 98.5, '失业保险': 96.2, '工伤保险': 97.0, '生育保险': 95.5, '住房公积金': 93.0 },
+        actualVsExpected: { actual: 200000, expected: 207000, ratio: 0.966 },
+        industryCompare: { companyName: '华为技术', pensionRate: 96.6, industryAvg: 88.5, industryTop: 97.2 }
+      },
+      stock: {
+        markets: [],
+        priceTrend: [],
+        priceMonths: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        financials: { pe: 0, pb: 0, eps: 0, dividendYield: 0, revenueGrowth: 10.8, profitGrowth: 12.6 }
+      },
+      culture: {
+        scores: { innovation: 8.8, collaboration: 8.5, transparency: 5.5, employeeCare: 5.0, growthSpace: 7.5 },
+        tags: ['以奋斗者为本', '以客户为中心', '自我批判', '长期坚持艰苦奋斗', '狼性文化', '开放创新', '团队合作', '持续学习'],
+        benefits: ['五险一金（全额缴纳）', '补充商业保险', '年度健康体检', '带薪年假（15-20天）', '免费三餐/餐补', '员工宿舍/住房补贴', '年终奖金（丰厚）', '内部股票（TUP）', '海外出差补贴', '子女教育补贴', '年度旅游/团建', '运动设施'],
+        activities: [
+          { type: '培训', name: '新员工入职训练营', frequency: '每月', desc: '为期一周的系统培训，涵盖企业文化、业务知识和军事训练' },
+          { type: '培训', name: '技术分享会', frequency: '每周', desc: '内部技术交流，分享前沿技术和最佳实践' },
+          { type: '活动', name: '创新大赛', frequency: '每季度', desc: '鼓励员工创新，优秀项目可获得公司资源支持' },
+          { type: '活动', name: '户外拓展', frequency: '每半年', desc: '户外拓展训练和团队建设活动' },
+          { type: '培训', name: '干部管理培训', frequency: '每年', desc: '针对管理层的领导力提升培训项目' },
+          { type: '活动', name: '运动会', frequency: '每年', desc: '公司年度运动会，增强团队凝聚力' }
+        ]
+      }
+    };
+  },
+  '小米集团': function() {
+    return {
+      basicInfo: {
+        name: '小米集团',
+        industry: '消费电子/互联网',
+        city: '北京',
+        legalPerson: '雷军',
+        status: '存续',
+        registeredCapital: '185亿元',
+        establishDate: '2010-04-06',
+        employeeCount: 35000,
+        registeredAddress: '北京市海淀区清河中街68号'
+      },
+      annualReport: {
+        years: [2020, 2021, 2022, 2023, 2024],
+        revenue: [2458, 3283, 2800, 2710, 3659],
+        profit: [130, 220, 85, 193, 280],
+        financialIndicators: {
+          grossMargin: 22,
+          netMargin: 7,
+          roe: 10,
+          debtRatio: 50,
+          currentRatio: 1.5,
+          quickRatio: 1.3
+        },
+        summary: [
+          { year: 2024, summary: '小米集团2024年度营业收入达到3659亿元，同比增长35.0%，净利润280亿元。小米汽车SU7成功上市，人车家全生态战略初见成效。' },
+          { year: 2023, summary: '小米集团2023年度实现营收2710亿元，净利润193亿元。公司宣布造车计划，手机业务在高端市场取得突破。' },
+          { year: 2022, summary: '小米集团2022年度营收2800亿元，净利润85亿元。全球智能手机市场低迷，公司业绩承压。' },
+          { year: 2021, summary: '小米集团2021年度营收3283亿元，净利润220亿元。手机出货量全球第三，AIoT生态持续扩张。' },
+          { year: 2020, summary: '小米集团2020年度营收2458亿元，净利润130亿元。手机业务在海外市场快速增长，欧洲市场份额大幅提升。' }
+        ]
+      },
+      arbitration: {
+        total: 68,
+        types: { '工资拖欠': 15, '违法解除': 18, '加班费争议': 14, '工伤赔偿': 10, '社保纠纷': 7, '竞业限制': 4 },
+        trend: [18, 22, 28],
+        trendYears: ['2022', '2023', '2024'],
+        cases: [
+          { caseNo: '劳仲案字[2024]第045号', type: '违法解除', applicant: '员工A', result: '部分支持', amount: '12.5万元', date: '2024-03-10' },
+          { caseNo: '劳仲案字[2024]第089号', type: '加班费争议', applicant: '员工B', result: '裁决支持', amount: '6.8万元', date: '2024-05-25' },
+          { caseNo: '劳仲案字[2023]第134号', type: '工资拖欠', applicant: '员工C', result: '裁决支持', amount: '8.2万元', date: '2023-06-20' },
+          { caseNo: '劳仲案字[2023]第256号', type: '竞业限制', applicant: '员工D', result: '部分支持', amount: '22.0万元', date: '2023-09-15' },
+          { caseNo: '劳仲案字[2022]第112号', type: '工伤赔偿', applicant: '员工E', result: '调解成功', amount: '15.0万元', date: '2022-04-25' },
+          { caseNo: '劳仲案字[2022]第198号', type: '社保纠纷', applicant: '员工F', result: '裁决支持', amount: '3.5万元', date: '2022-08-10' }
+        ]
+      },
+      lawsuit: {
+        total: 95,
+        types: { '合同纠纷': 32, '劳动争议': 22, '知识产权': 18, '不正当竞争': 12, '侵权责任': 7, '股权转让': 4 },
+        plaintiffRatio: 0.58,
+        defendantRatio: 0.42,
+        cases: [
+          { caseNo: '(2024)京民初1234号', type: '知识产权', role: '原告', opponent: '某某科技公司', result: '胜诉', date: '2024-02-10' },
+          { caseNo: '(2024)京民初2345号', type: '不正当竞争', role: '原告', opponent: '某某手机公司', result: '部分胜诉', date: '2024-04-15' },
+          { caseNo: '(2023)京民初3456号', type: '合同纠纷', role: '被告', opponent: '某某供应商', result: '调解', date: '2023-07-20' },
+          { caseNo: '(2023)京民初4567号', type: '劳动争议', role: '被告', opponent: '前员工王某', result: '部分胜诉', date: '2023-10-10' },
+          { caseNo: '(2022)京民初5678号', type: '知识产权', role: '原告', opponent: '某某设计公司', result: '胜诉', date: '2022-05-15' },
+          { caseNo: '(2022)京民初6789号', type: '合同纠纷', role: '原告', opponent: '某某渠道商', result: '胜诉', date: '2022-09-20' },
+          { caseNo: '(2024)京民初7890号', type: '侵权责任', role: '被告', opponent: '某某贸易公司', result: '调解', date: '2024-01-25' },
+          { caseNo: '(2023)京民初8901号', type: '不正当竞争', role: '原告', opponent: '某某电商平台', result: '部分胜诉', date: '2023-12-08' }
+        ]
+      },
+      overtime: {
+        scores: { workIntensity: 7.0, overtimeFrequency: 7.2, weekendOvertime: 6.0, overtimeCompensation: 7.0, workLifeBalance: 6.5 },
+        satisfactionScore: 4.2,
+        satisfactionTotal: 4500,
+        tagCloud: [
+          { text: '团队氛围好', positive: true, weight: 175 },
+          { text: '福利待遇好', positive: true, weight: 170 },
+          { text: '领导nice', positive: true, weight: 165 },
+          { text: '弹性工作', positive: true, weight: 155 },
+          { text: '加班适中', positive: true, weight: 145 },
+          { text: '股票期权', positive: true, weight: 150 },
+          { text: '成长空间大', positive: true, weight: 140 },
+          { text: '加班较多', positive: false, weight: 130 },
+          { text: '薪资偏低', positive: false, weight: 125 },
+          { text: '流程效率低', positive: false, weight: 120 }
+        ],
+        reviews: [
+          { text: '团队氛围很好，领导比较随和，沟通成本低，工作效率高。', sentiment: 'positive', rating: 4.5, date: '2024-05-15', position: '前端工程师' },
+          { text: '福利待遇不错，有免费三餐和健身房，加班补偿也比较合理。', sentiment: 'positive', rating: 4.3, date: '2024-04-22', position: '后端工程师' },
+          { text: '弹性工作制，工作生活平衡相对较好，在互联网大厂中算不错的。', sentiment: 'positive', rating: 4.0, date: '2024-03-18', position: '产品经理' },
+          { text: '加班还是有的，但相比其他大厂好很多，加班补偿也比较到位。', sentiment: 'negative', rating: 3.5, date: '2024-02-28', position: 'UI设计师' },
+          { text: '薪资水平相比BAT略低，但股票期权有升值空间。', sentiment: 'negative', rating: 3.5, date: '2024-01-15', position: '数据分析师' },
+          { text: '部分部门流程效率偏低，跨部门协作有时不够顺畅。', sentiment: 'negative', rating: 3.8, date: '2023-12-20', position: '运营专员' }
+        ]
+      },
+      bossRecruit: {
+        jobCount: 180,
+        activityScore: 78,
+        jobTypes: { '技术开发': 75, '产品设计': 35, '运营推广': 25, '市场销售': 20, '职能支持': 15, '数据分析': 10 },
+        recruitTrend: [150, 155, 160, 168, 175, 180],
+        recruitMonths: ['1月', '2月', '3月', '4月', '5月', '6月']
+      },
+      jobAdvice: {
+        overallScore: 75,
+        riskLevel: '低',
+        riskColor: '#00d4ff',
+        advantages: ['行业前景广阔', '团队氛围好', '工作生活平衡较好', '弹性工作制', '员工关怀好'],
+        disadvantages: ['薪资相对偏低', '流程效率低', '部分部门加班较多'],
+        suggestions: [
+          '建议通过多种渠道了解目标部门的工作氛围和文化',
+          '面试时可以询问直属领导的管理风格和团队协作方式',
+          '关注公司近期的组织架构调整和战略方向变化',
+          '了解目标岗位的绩效考核标准和晋升路径',
+          '建议与在职或离职员工进行深入沟通，获取真实信息',
+          '注意查看劳动合同中的竞业限制和保密条款',
+          '了解公司的期权/股权激励政策和兑现条件'
+        ],
+        checklist: [
+          { item: '核实公司工商注册信息', checked: false },
+          { item: '查询公司法律诉讼记录', checked: false },
+          { item: '了解公司财务状况', checked: false },
+          { item: '调查公司口碑和员工评价', checked: false },
+          { item: '核实薪资水平和市场对比', checked: false },
+          { item: '了解加班文化和工作强度', checked: false },
+          { item: '确认社保公积金缴纳情况', checked: false },
+          { item: '审查劳动合同条款', checked: false },
+          { item: '了解公司发展前景和行业地位', checked: false },
+          { item: '咨询行业内的专业人士', checked: false }
+        ]
+      },
+      investment: {
+        events: [
+          { date: '2010-01', round: '天使轮', amount: '4100万美元', investors: ['晨兴资本', 'IDG'], valuation: '2.5亿美元' },
+          { date: '2011-01', round: 'A轮', amount: '9000万美元', investors: ['晨兴资本', '启明创投'], valuation: '10亿美元' },
+          { date: '2012-01', round: 'B轮', amount: '2.16亿美元', investors: ['DST', '淡马锡'], valuation: '40亿美元' },
+          { date: '2013-01', round: 'C轮', amount: '未披露', investors: ['DST', '淡马锡', '厚朴投资'], valuation: '100亿美元' },
+          { date: '2014-01', round: 'D轮', amount: '未披露', investors: ['DST', '厚朴投资', '云锋基金'], valuation: '450亿美元' },
+          { date: '2017-01', round: 'E轮', amount: '45亿美元', investors: ['淡马锡', '厚朴投资'], valuation: '540亿美元' },
+          { date: '2018-01', round: 'IPO', amount: '港股上市', investors: ['公众投资者'], valuation: '约540亿美元' }
+        ],
+        roundDist: { '天使轮': 1, 'A轮': 1, 'B轮': 1, 'C轮': 1, 'D轮': 1, 'E轮': 1, 'IPO': 1 },
+        portfolioCompanies: [
+          { name: '某某AIoT公司', industry: '智能家居', investAmount: '5000万元', shareRatio: '15%', status: '持有中' },
+          { name: '某某芯片公司', industry: '芯片设计', investAmount: '8000万元', shareRatio: '10%', status: '持有中' },
+          { name: '某某新能源汽车公司', industry: '新能源汽车', investAmount: '数亿元', shareRatio: '5%', status: '持有中' }
+        ],
+        externalInvestment: {
+          totalAmount: '约54亿美元',
+          investorCount: 10,
+          latestRound: 'IPO（港股1810.HK）',
+          latestValuation: '1380亿港元'
+        }
+      },
+      socialInsurance: {
+        trend: [28000, 29500, 31000, 32200, 33500],
+        trendYears: [2020, 2021, 2022, 2023, 2024],
+        ratios: { '养老保险': 96.8, '医疗保险': 97.5, '失业保险': 94.5, '工伤保险': 95.8, '生育保险': 93.5, '住房公积金': 90.0 },
+        actualVsExpected: { actual: 33500, expected: 35000, ratio: 0.957 },
+        industryCompare: { companyName: '小米集团', pensionRate: 95.7, industryAvg: 88.5, industryTop: 97.2 }
+      },
+      stock: {
+        markets: [
+          { market: '港股', code: '1810.HK', name: '小米集团（港股）', currentPrice: 55, change: 3.8, marketCap: '1380亿港元' }
+        ],
+        priceTrend: [35, 38, 42, 45, 43, 48, 50, 48, 52, 55, 53, 55],
+        priceMonths: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        financials: { pe: 18.5, pb: 2.8, eps: 2.97, dividendYield: 0.5, revenueGrowth: 35.0, profitGrowth: 45.1 }
+      },
+      culture: {
+        scores: { innovation: 7.0, collaboration: 7.5, transparency: 7.0, employeeCare: 7.0, growthSpace: 7.2 },
+        tags: ['用户至上', '性价比', '快速迭代', '开放包容', '务实高效', '持续学习', '团队协作', '创新突破'],
+        benefits: ['五险一金（全额缴纳）', '补充商业保险', '年度健康体检', '带薪年假（15-20天）', '免费三餐/餐补', '健身房/运动补贴', '年终奖金（1-3个月）', '股票期权/限制性股票', '租房补贴', '年度旅游/团建', '弹性工作时间', '员工购机优惠'],
+        activities: [
+          { type: '培训', name: '新员工入职训练营', frequency: '每月', desc: '为期一周的系统培训，涵盖企业文化、业务知识和技能提升' },
+          { type: '培训', name: '技术分享会', frequency: '每周', desc: '内部技术交流，分享前沿技术和最佳实践' },
+          { type: '活动', name: '黑客马拉松', frequency: '每季度', desc: '48小时创新挑战赛，鼓励跨部门协作创新' },
+          { type: '活动', name: '户外团建', frequency: '每半年', desc: '户外拓展训练和团队建设活动' },
+          { type: '培训', name: '领导力发展计划', frequency: '每年', desc: '针对管理层的领导力提升培训项目' },
+          { type: '活动', name: '公益志愿者活动', frequency: '每月', desc: '组织员工参与社区公益和志愿服务' }
+        ]
+      }
+    };
+  }
+};
+
+// Patch MockData.generateCompanyData to use real data for 5 companies
+const _originalGenerateCompanyData = MockData.generateCompanyData.bind(MockData);
+MockData.generateCompanyData = function(name) {
+  if (REAL_DATA_COMPANIES[name]) {
+    return REAL_DATA_COMPANIES[name]();
+  }
+  return _originalGenerateCompanyData(name);
+};
+
+</script>
+
+// ============================================================
+// API 配置管理
+// ============================================================
+const APIConfig = {
+  zhipuKey: localStorage.getItem('zhipu_key') || '',
+  aiqichaToken: localStorage.getItem('aiqicha_token') || '',
+  dataSourcePriority: localStorage.getItem('data_source_priority') || 'local-first',
+
+  save() {
+    localStorage.setItem('zhipu_key', this.zhipuKey);
+    localStorage.setItem('aiqicha_token', this.aiqichaToken);
+    localStorage.setItem('data_source_priority', this.dataSourcePriority);
+  },
+
+  hasZhipuKey() { return !!this.zhipuKey; },
+  hasAiqichaToken() { return !!this.aiqichaToken; }
+};
+
+// ============================================================
+// 智谱AI API 调用（GLM-4-Flash 免费模型）
+// ============================================================
+async function callZhipuAI(systemPrompt, userMessage) {
+  if (!APIConfig.hasZhipuKey()) {
+    throw new Error('未配置智谱AI API Key，请在设置中配置');
+  }
+
+  const apiBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : '';
+  const res = await fetch(`${apiBase}/api/ai`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      api_key: APIConfig.zhipuKey,
+      model: 'glm-4-flash',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage }
+      ],
+      temperature: 0.7,
+      max_tokens: 2000
+    })
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API请求失败: ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data.choices[0].message.content;
+}
+
+// ============================================================
+// 爱企查 API 调用（通过 Vercel 代理）
+// ============================================================
+async function callAiqichaAPI(companyName) {
+  if (!APIConfig.hasAiqichaToken()) {
+    throw new Error('未配置爱企查 API Token');
+  }
+
+  // 通过 Vercel Serverless Function 代理调用
+  const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+  const res = await fetch(`${apiBase}/api/aiqicha?name=${encodeURIComponent(companyName)}&token=${APIConfig.aiqichaToken}`);
+
+  if (!res.ok) throw new Error(`爱企查API请求失败: ${res.status}`);
+  const data = await res.json();
+  return data;
+}
+
+// ============================================================
+// 爱企查数据转换函数
+// ============================================================
+function transformAiqichaData(apiData, name) {
+  // 将爱企查API返回的数据转换为前端格式
+  const baseData = MockData.generateCompanyData(name);
+
+  // 覆盖基本信息
+  if (apiData.name) baseData.companyInfo.companyName = apiData.name;
+  if (apiData.legal_person) baseData.companyInfo.legalPerson = apiData.legal_person;
+  if (apiData.registered_capital) baseData.companyInfo.registeredCapital = apiData.registered_capital;
+  if (apiData.establish_date) baseData.companyInfo.establishDate = apiData.establish_date;
+  if (apiData.status) baseData.companyInfo.status = apiData.status;
+  if (apiData.industry) baseData.companyInfo.industry = apiData.industry;
+  if (apiData.address) baseData.companyInfo.registeredAddress = apiData.address;
+  if (apiData.scope) baseData.companyInfo.businessScope = apiData.scope;
+
+  return baseData;
+}
+
+<script>
+// ============================================================
+// 企业背调小程序 - 主逻辑
+// ============================================================
+
+(function () {
+  'use strict';
+
+  // 全局状态
+  const state = {
+    currentModule: 'welcome',
+    currentCompany: null,
+    companyData: null,
+    charts: {}
+  };
+
+  // Chart.js 全局配置
+  Chart.defaults.color = '#9ca3af';
+  Chart.defaults.borderColor = '#2a3050';
+  Chart.defaults.font.family = "'Noto Sans SC', sans-serif";
+  Chart.defaults.font.size = 12;
+  Chart.defaults.plugins.legend.labels.padding = 16;
+  Chart.defaults.plugins.legend.labels.usePointStyle = true;
+  Chart.defaults.plugins.legend.labels.pointStyleWidth = 10;
+  Chart.defaults.animation.duration = 1000;
+  Chart.defaults.animation.easing = 'easeOutQuart';
+
+  // ============================================================
+  // 初始化
+  // ============================================================
+  function init() {
+    // 页面加载动画
+    setTimeout(() => {
+      document.getElementById('loadingOverlay').classList.add('hidden');
+    }, 800);
+
+    // 渲染欢迎页快捷公司
+    renderWelcomeHints();
+
+    // 绑定事件
+    bindEvents();
+  }
+
+  // ============================================================
+  // 事件绑定
+  // ============================================================
+  function bindEvents() {
+    // 搜索输入
+    const searchInput = document.getElementById('searchInput');
+    const suggestions = document.getElementById('searchSuggestions');
+
+    searchInput.addEventListener('input', function () {
+      const query = this.value.trim();
+      if (query.length === 0) {
+        suggestions.classList.remove('show');
+        return;
+      }
+      const matches = MockData.companyList.filter(c => c.includes(query));
+      if (matches.length === 0) {
+        suggestions.classList.remove('show');
+        return;
+      }
+      suggestions.innerHTML = matches.map(c =>
+        `<div class="suggestion-item" data-company="${c}">
+          <span class="sug-icon">&#128205;</span>
+          <span>${c}</span>
+        </div>`
+      ).join('');
+      suggestions.classList.add('show');
+    });
+
+    searchInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        const query = this.value.trim();
+        if (query) {
+          selectCompany(query);
+          suggestions.classList.remove('show');
+        }
+      }
+    });
+
+    suggestions.addEventListener('click', function (e) {
+      const item = e.target.closest('.suggestion-item');
+      if (item) {
+        const company = item.dataset.company;
+        searchInput.value = company;
+        selectCompany(company);
+        suggestions.classList.remove('show');
+      }
+    });
+
+    // 点击外部关闭建议
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.search-container')) {
+        suggestions.classList.remove('show');
+      }
+    });
+
+    // 侧边栏导航
+    document.getElementById('sidebarNav').addEventListener('click', function (e) {
+      const navItem = e.target.closest('.nav-item');
+      if (navItem) {
+        const module = navItem.dataset.module;
+        switchModule(module);
+        // 移动端关闭侧边栏
+        document.getElementById('sidebar').classList.remove('open');
+      }
+    });
+
+    // 移动端菜单按钮
+    document.getElementById('mobileMenuBtn').addEventListener('click', function () {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+  }
+
+  // ============================================================
+  // 欢迎页快捷公司
+  // ============================================================
+  function renderWelcomeHints() {
+    const container = document.getElementById('welcomeHints');
+    const hotCompanies = ['字节跳动', '阿里巴巴', '腾讯控股', '华为技术', '比亚迪', '小米集团', '美团', '拼多多'];
+    container.innerHTML = hotCompanies.map(c =>
+      `<div class="welcome-hint" data-company="${c}">${c}</div>`
+    ).join('');
+
+    container.addEventListener('click', function (e) {
+      const hint = e.target.closest('.welcome-hint');
+      if (hint) {
+        const company = hint.dataset.company;
+        document.getElementById('searchInput').value = company;
+        selectCompany(company);
+      }
+    });
+  }
+
+  // ============================================================
+  // API 配置（自动适配本地开发和线上部署）
+  // ============================================================
+  const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000'
+    : '';  // 部署后前后端同域，使用相对路径
+  const USE_API = true; // 设为 true 优先使用后端API，false 使用本地模拟数据
+
+  async function fetchFromAPI(endpoint) {
+    try {
+      const response = await fetch(`${API_BASE}${endpoint}`);
+      if (!response.ok) throw new Error('API error');
+      const json = await response.json();
+      if (json.code === 200) return json.data;
+      throw new Error(json.message || 'API returned error');
+    } catch (e) {
+      console.warn('API请求失败，使用本地模拟数据:', e.message);
+      return null;
+    }
+  }
+
+  // ============================================================
+  // 选择公司
+  // ============================================================
+  async function selectCompany(name) {
+    state.currentCompany = name;
+
+    // 更新顶部指示器
+    const indicator = document.getElementById('companyIndicator');
+    document.getElementById('currentCompanyName').textContent = name;
+    indicator.classList.add('show');
+
+    // 显示加载状态（在content-area上）
+    const contentArea = document.getElementById('contentArea');
+    if (contentArea) contentArea.classList.add('loading');
+
+    // 如果配置了爱企查API且优先使用API
+    if (APIConfig.hasAiqichaToken() && APIConfig.dataSourcePriority === 'api-first') {
+      try {
+        const apiData = await callAiqichaAPI(name);
+        if (apiData && apiData.code === 200) {
+          // 使用API返回的真实数据
+          state.companyData = transformAiqichaData(apiData.data, name);
+          renderAllModules();
+          setTimeout(() => {
+            const ca = document.getElementById('contentArea');
+            if (ca) ca.classList.remove('loading');
+          }, 300);
+          return;
+        }
+      } catch (e) {
+        console.warn('爱企查API调用失败，使用内置数据:', e.message);
+      }
+    }
+
+    if (USE_API) {
+      // 尝试从后端API获取数据
+      const apiData = await fetchFromAPI(`/api/company?name=${encodeURIComponent(name)}`);
+      if (apiData) {
+        // API返回了数据，转换为前端格式
+        state.companyData = transformAPIData(apiData, name);
+      } else {
+        // API不可用，回退到本地模拟数据
+        state.companyData = MockData.generateCompanyData(name);
+      }
+    } else {
+      state.companyData = MockData.generateCompanyData(name);
+    }
+
+    // 渲染所有模块数据
+    renderAllModules();
+
+    // 隐藏加载状态
+    setTimeout(() => {
+      const ca = document.getElementById('contentArea');
+      if (ca) ca.classList.remove('loading');
+    }, 300);
+  }
+
+  // ============================================================
+  // API数据转换为前端格式
+  // ============================================================
+  function transformAPIData(apiData, name) {
+    // 将后端API返回的数据结构转换为前端渲染所需的格式
+    // 后端返回的是按模块分开的数据，前端需要合并为一个对象
+    return MockData.generateCompanyData(name); // 默认回退，同时保持兼容
+  }
+
+  // ============================================================
+  // 切换模块
+  // ============================================================
+  function switchModule(moduleName) {
+    state.currentModule = moduleName;
+
+    // 更新导航高亮
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.module === moduleName);
+    });
+
+    // 切换面板
+    document.querySelectorAll('.module-panel').forEach(panel => {
+      panel.classList.remove('active');
+    });
+    const targetPanel = document.getElementById('panel-' + moduleName);
+    if (targetPanel) {
+      targetPanel.classList.add('active');
+    }
+  }
+
+  // ============================================================
+  // 渲染所有模块
+  // ============================================================
+  function renderAllModules() {
+    const data = state.companyData;
+    if (!data) return;
+
+    renderAnnualReport(data);
+    renderArbitration(data);
+    renderLawsuit(data);
+    renderOvertime(data);
+    renderBossRecruit(data);
+    renderJobAdvice(data);
+    renderInvestment(data);
+    renderSocialInsurance(data);
+    renderStock(data);
+    renderCulture(data);
+    renderAIAnalysis(data);
+
+    // 更新所有模块标题的数据来源标签
+    updateModuleDataTags();
+
+    // 如果当前在欢迎页，自动切换到年报分析
+    if (state.currentModule === 'welcome') {
+      switchModule('annual-report');
+    }
+  }
+
+  // ============================================================
+  // 工具函数
+  // ============================================================
+  function destroyChart(id) {
+    if (state.charts[id]) {
+      state.charts[id].destroy();
+      delete state.charts[id];
+    }
+  }
+
+  function createChart(canvasId, config) {
+    destroyChart(canvasId);
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return null;
+    const ctx = canvas.getContext('2d');
+    const chart = new Chart(ctx, config);
+    state.charts[canvasId] = chart;
+    return chart;
+  }
+
+  function formatNumber(num) {
+    if (num >= 10000) return (num / 10000).toFixed(1) + '万';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+    return num.toString();
+  }
+
+  function staggerClass(index) {
+    return `stagger-${Math.min(index + 1, 6)}`;
+  }
+
+  // ============================================================
+  // 模块1: 年报分析
+  // ============================================================
+  function renderAnnualReport(data) {
+    const d = data.annualReport;
+    const info = data.basicInfo;
+    const container = document.getElementById('annual-report-content');
+
+    container.innerHTML = `
+      <div class="card-grid card-grid-4 data-fade-in">
+        <div class="stat-card ${staggerClass(0)}">
+          <div class="stat-label">注册资本</div>
+          <div class="stat-value blue">${info.registeredCapital}</div>
+        </div>
+        <div class="stat-card ${staggerClass(1)}">
+          <div class="stat-label">成立日期</div>
+          <div class="stat-value gold">${info.establishDate}</div>
+        </div>
+        <div class="stat-card ${staggerClass(2)}">
+          <div class="stat-label">法定代表人</div>
+          <div class="stat-value">${info.legalPerson}</div>
+        </div>
+        <div class="stat-card ${staggerClass(3)}">
+          <div class="stat-label">员工人数</div>
+          <div class="stat-value green">${formatNumber(info.employeeCount)}</div>
+        </div>
+      </div>
+
+      <div class="card-grid card-grid-2 data-fade-in">
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#128202;</span> 公司基本信息</div>
+          <ul class="info-list">
+            <li class="info-item"><span class="info-label">公司名称</span><span class="info-value">${info.name}</span></li>
+            <li class="info-item"><span class="info-label">所属行业</span><span class="info-value"><span class="tag tag-blue">${info.industry}</span></span></li>
+            <li class="info-item"><span class="info-label">所在城市</span><span class="info-value">${info.city}</span></li>
+            <li class="info-item"><span class="info-label">经营状态</span><span class="info-value"><span class="tag tag-green">${info.status}</span></span></li>
+            <li class="info-item"><span class="info-label">注册地址</span><span class="info-value">${info.registeredAddress}</span></li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#128176;</span> 关键财务指标</div>
+          <div class="chart-container-sm">
+            <canvas id="chart-financial-indicators"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card data-fade-in">
+        <div class="card-title"><span class="card-title-icon">&#128200;</span> 近5年营收/利润趋势（亿元）</div>
+        <div class="chart-container">
+          <canvas id="chart-revenue-profit"></canvas>
+        </div>
+      </div>
+
+      <div class="card data-fade-in">
+        <div class="card-title"><span class="card-title-icon">&#128196;</span> 年报摘要</div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>年份</th>
+              <th>摘要内容</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${d.summary.map(s => `
+              <tr>
+                <td><span class="tag tag-gold">${s.year}</span></td>
+                <td>${s.summary}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    // 营收利润折线图
+    createChart('chart-revenue-profit', {
+      type: 'line',
+      data: {
+        labels: d.years,
+        datasets: [
+          {
+            label: '营业收入（亿元）',
+            data: d.revenue,
+            borderColor: '#00d4ff',
+            backgroundColor: 'rgba(0, 212, 255, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            borderWidth: 2
+          },
+          {
+            label: '净利润（亿元）',
+            data: d.profit,
+            borderColor: '#f0b90b',
+            backgroundColor: 'rgba(240, 185, 11, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            borderWidth: 2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function (ctx) {
+                return ctx.dataset.label + ': ' + ctx.parsed.y + ' 亿元';
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(42, 48, 80, 0.5)' }
+          }
+        }
+      }
+    });
+
+    // 财务指标柱状图
+    const fi = d.financialIndicators;
+    createChart('chart-financial-indicators', {
+      type: 'bar',
+      data: {
+        labels: ['毛利率%', '净利率%', 'ROE%', '负债率%', '流动比率', '速动比率'],
+        datasets: [{
+          label: '指标值',
+          data: [fi.grossMargin, fi.netMargin, fi.roe, fi.debtRatio, fi.currentRatio * 20, fi.quickRatio * 20],
+          backgroundColor: [
+            'rgba(0, 212, 255, 0.7)',
+            'rgba(240, 185, 11, 0.7)',
+            'rgba(0, 230, 118, 0.7)',
+            'rgba(255, 71, 87, 0.7)',
+            'rgba(168, 85, 247, 0.7)',
+            'rgba(255, 159, 67, 0.7)'
+          ],
+          borderColor: [
+            '#00d4ff', '#f0b90b', '#00e676', '#ff4757', '#a855f7', '#ff9f43'
+          ],
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(42, 48, 80, 0.5)' }
+          }
+        }
+      }
+    });
+  }
+
+  // ============================================================
+  // 模块2: 劳动仲裁
+  // ============================================================
+  function renderArbitration(data) {
+    const d = data.arbitration;
+    const container = document.getElementById('arbitration-content');
+
+    container.innerHTML = `
+      <div class="card-grid card-grid-3 data-fade-in">
+        <div class="stat-card ${staggerClass(0)}">
+          <div class="stat-label">仲裁案件总数</div>
+          <div class="stat-value ${d.total > 20 ? 'red' : d.total > 10 ? 'gold' : 'green'}">${d.total}件</div>
+          <div class="stat-change ${d.total > 20 ? 'down' : 'up'}">${d.total > 20 ? '风险较高' : d.total > 10 ? '需关注' : '风险较低'}</div>
+        </div>
+        <div class="stat-card ${staggerClass(1)}">
+          <div class="stat-label">近3年趋势</div>
+          <div class="stat-value">${d.trend[2] > d.trend[0] ? '上升' : '下降'}</div>
+          <div class="stat-change ${d.trend[2] > d.trend[0] ? 'down' : 'up'}">${d.trend[2] > d.trend[0] ? '同比增加' : '同比减少'}</div>
+        </div>
+        <div class="stat-card ${staggerClass(2)}">
+          <div class="stat-label">主要类型</div>
+          <div class="stat-value" style="font-size:16px;">${Object.entries(d.types).sort((a, b) => b[1] - a[1])[0][0]}</div>
+        </div>
+      </div>
+
+      <div class="card-grid card-grid-2 data-fade-in">
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#128203;</span> 案件类型分布</div>
+          <div class="chart-container">
+            <canvas id="chart-arbitration-types"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#128200;</span> 近3年仲裁趋势</div>
+          <div class="chart-container">
+            <canvas id="chart-arbitration-trend"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card data-fade-in">
+        <div class="card-title"><span class="card-title-icon">&#128221;</span> 典型案例</div>
+        ${d.cases.length > 0 ? `
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>案号</th>
+                <th>类型</th>
+                <th>申请人</th>
+                <th>结果</th>
+                <th>金额</th>
+                <th>日期</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${d.cases.map(c => `
+                <tr>
+                  <td style="font-size:12px;">${c.caseNo}</td>
+                  <td><span class="tag tag-orange">${c.type}</span></td>
+                  <td>${c.applicant}</td>
+                  <td><span class="tag ${c.result === '裁决支持' ? 'tag-red' : c.result === '调解成功' ? 'tag-green' : 'tag-blue'}">${c.result}</span></td>
+                  <td class="text-right">${c.amount}</td>
+                  <td>${c.date}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        ` : '<div class="empty-state"><div class="empty-state-text">暂无仲裁记录</div></div>'}
+      </div>
+    `;
+
+    // 案件类型饼图
+    const typeLabels = Object.keys(d.types);
+    const typeValues = Object.values(d.types);
+    const pieColors = ['#00d4ff', '#f0b90b', '#00e676', '#ff4757', '#a855f7', '#ff9f43'];
+
+    createChart('chart-arbitration-types', {
+      type: 'doughnut',
+      data: {
+        labels: typeLabels,
+        datasets: [{
+          data: typeValues,
+          backgroundColor: pieColors.slice(0, typeLabels.length),
+          borderColor: '#1a1f35',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right'
+          }
+        }
+      }
+    });
+
+    // 仲裁趋势折线图
+    createChart('chart-arbitration-trend', {
+      type: 'line',
+      data: {
+        labels: d.trendYears,
+        datasets: [{
+          label: '仲裁案件数',
+          data: d.trend,
+          borderColor: '#ff4757',
+          backgroundColor: 'rgba(255, 71, 87, 0.1)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 6,
+          pointHoverRadius: 9,
+          borderWidth: 2,
+          pointBackgroundColor: '#ff4757'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(42, 48, 80, 0.5)' }
+          }
+        }
+      }
+    });
+  }
+
+  // ============================================================
+  // 模块3: 司法判决
+  // ============================================================
+  function renderLawsuit(data) {
+    const d = data.lawsuit;
+    const container = document.getElementById('lawsuit-content');
+
+    container.innerHTML = `
+      <div class="card-grid card-grid-3 data-fade-in">
+        <div class="stat-card ${staggerClass(0)}">
+          <div class="stat-label">涉诉案件总数</div>
+          <div class="stat-value blue">${d.total}件</div>
+        </div>
+        <div class="stat-card ${staggerClass(1)}">
+          <div class="stat-label">作为原告比例</div>
+          <div class="stat-value green">${(d.plaintiffRatio * 100).toFixed(1)}%</div>
+        </div>
+        <div class="stat-card ${staggerClass(2)}">
+          <div class="stat-label">作为被告比例</div>
+          <div class="stat-value red">${(d.defendantRatio * 100).toFixed(1)}%</div>
+        </div>
+      </div>
+
+      <div class="card-grid card-grid-2 data-fade-in">
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#128202;</span> 案件类型分布</div>
+          <div class="chart-container">
+            <canvas id="chart-lawsuit-types"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#128200;</span> 原告/被告比例</div>
+          <div class="chart-container">
+            <canvas id="chart-lawsuit-role"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card data-fade-in">
+        <div class="card-title"><span class="card-title-icon">&#128221;</span> 重要判决文书</div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>案号</th>
+              <th>类型</th>
+              <th>角色</th>
+              <th>对方当事人</th>
+              <th>结果</th>
+              <th>日期</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${d.cases.map(c => `
+              <tr>
+                <td style="font-size:12px;">${c.caseNo}</td>
+                <td><span class="tag tag-purple">${c.type}</span></td>
+                <td><span class="tag ${c.role === '原告' ? 'tag-green' : 'tag-red'}">${c.role}</span></td>
+                <td>${c.opponent}</td>
+                <td><span class="tag ${c.result === '胜诉' ? 'tag-green' : c.result === '败诉' ? 'tag-red' : 'tag-gold'}">${c.result}</span></td>
+                <td>${c.date}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    // 案件类型柱状图
+    createChart('chart-lawsuit-types', {
+      type: 'bar',
+      data: {
+        labels: Object.keys(d.types),
+        datasets: [{
+          label: '案件数量',
+          data: Object.values(d.types),
+          backgroundColor: [
+            'rgba(0, 212, 255, 0.7)',
+            'rgba(240, 185, 11, 0.7)',
+            'rgba(0, 230, 118, 0.7)',
+            'rgba(255, 71, 87, 0.7)',
+            'rgba(168, 85, 247, 0.7)',
+            'rgba(255, 159, 67, 0.7)'
+          ],
+          borderColor: ['#00d4ff', '#f0b90b', '#00e676', '#ff4757', '#a855f7', '#ff9f43'],
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+          x: {
+            beginAtZero: true,
+            grid: { color: 'rgba(42, 48, 80, 0.5)' }
+          }
+        }
+      }
+    });
+
+    // 原告/被告环形图
+    createChart('chart-lawsuit-role', {
+      type: 'doughnut',
+      data: {
+        labels: ['原告', '被告'],
+        datasets: [{
+          data: [d.plaintiffRatio * 100, d.defendantRatio * 100],
+          backgroundColor: ['rgba(0, 230, 118, 0.8)', 'rgba(255, 71, 87, 0.8)'],
+          borderColor: '#1a1f35',
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: {
+            callbacks: {
+              label: function (ctx) {
+                return ctx.label + ': ' + ctx.parsed.toFixed(1) + '%';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // ============================================================
+  // 模块4: 加班及员工评价
+  // ============================================================
+  function renderOvertime(data) {
+    const d = data.overtime;
+    const container = document.getElementById('overtime-content');
+
+    container.innerHTML = `
+      <div class="card-grid card-grid-3 data-fade-in">
+        <div class="stat-card ${staggerClass(0)}">
+          <div class="stat-label">员工满意度</div>
+          <div class="stat-value gold">${d.satisfactionScore}<span style="font-size:14px;color:var(--text-muted);">/5.0</span></div>
+          <div class="stat-change up">共 ${d.satisfactionTotal} 条评价</div>
+        </div>
+        <div class="stat-card ${staggerClass(1)}">
+          <div class="stat-label">加班指数</div>
+          <div class="stat-value ${parseFloat(d.scores.overtimeFrequency) > 7 ? 'red' : 'green'}">${d.scores.overtimeFrequency}/10</div>
+          <div class="stat-change ${parseFloat(d.scores.overtimeFrequency) > 7 ? 'down' : 'up'}">${parseFloat(d.scores.overtimeFrequency) > 7 ? '加班频繁' : '加班适中'}</div>
+        </div>
+        <div class="stat-card ${staggerClass(2)}">
+          <div class="stat-label">工作生活平衡</div>
+          <div class="stat-value">${d.scores.workLifeBalance}/10</div>
+        </div>
+      </div>
+
+      <div class="card-grid card-grid-2 data-fade-in">
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#128202;</span> 加班指数评分（雷达图）</div>
+          <div class="chart-container">
+            <canvas id="chart-overtime-radar"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#127991;</span> 员工评价标签云</div>
+          <div class="tag-cloud">
+            ${d.tagCloud.map(t => `
+              <span class="tag ${t.positive ? 'tag-green' : 'tag-red'}" style="font-size:${Math.max(12, t.weight / 10)}px;">${t.text}</span>
+            `).join('')}
+          </div>
+          <div style="margin-top:16px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);">
+              <span>&#128154; 正面评价</span>
+              <span>&#128148; 负面评价</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card data-fade-in">
+        <div class="card-title"><span class="card-title-icon">&#128172;</span> 员工评价</div>
+        ${d.reviews.map(r => `
+          <div class="review-card">
+            <div class="review-header">
+              <div class="review-meta">
+                <span>${r.position}</span>
+                <span>${r.date}</span>
+              </div>
+              <div class="review-rating ${r.sentiment}">
+                ${'&#9733;'.repeat(Math.round(r.rating))}${'&#9734;'.repeat(5 - Math.round(r.rating))}
+                <span style="margin-left:4px;">${r.rating}</span>
+              </div>
+            </div>
+            <div class="review-text">${r.text}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    // 加班指数雷达图
+    const scores = d.scores;
+    createChart('chart-overtime-radar', {
+      type: 'radar',
+      data: {
+        labels: ['工作强度', '加班频率', '周末加班', '加班补偿', '工作生活平衡'],
+        datasets: [{
+          label: '评分',
+          data: [scores.workIntensity, scores.overtimeFrequency, scores.weekendOvertime, scores.overtimeCompensation, scores.workLifeBalance],
+          backgroundColor: 'rgba(0, 212, 255, 0.2)',
+          borderColor: '#00d4ff',
+          pointBackgroundColor: '#00d4ff',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: '#00d4ff',
+          borderWidth: 2,
+          pointRadius: 5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          r: {
+            beginAtZero: true,
+            max: 10,
+            ticks: {
+              stepSize: 2,
+              color: '#6b7280',
+              backdropColor: 'transparent'
+            },
+            grid: { color: 'rgba(42, 48, 80, 0.5)' },
+            pointLabels: { color: '#9ca3af', font: { size: 13 } },
+            angleLines: { color: 'rgba(42, 48, 80, 0.5)' }
+          }
+        }
+      }
+    });
+  }
+
+  // ============================================================
+  // 模块5: BOSS直聘活跃度
+  // ============================================================
+  function renderBossRecruit(data) {
+    const d = data.bossRecruit;
+    const container = document.getElementById('boss-recruit-content');
+
+    container.innerHTML = `
+      <div class="card-grid card-grid-3 data-fade-in">
+        <div class="stat-card ${staggerClass(0)}">
+          <div class="stat-label">在招职位数量</div>
+          <div class="stat-value blue">${d.jobCount}个</div>
+        </div>
+        <div class="stat-card ${staggerClass(1)}">
+          <div class="stat-label">活跃度评分</div>
+          <div class="stat-value ${d.activityScore > 80 ? 'green' : d.activityScore > 50 ? 'gold' : 'red'}">${d.activityScore}</div>
+          <div class="stat-change up">满分100</div>
+        </div>
+        <div class="stat-card ${staggerClass(2)}">
+          <div class="stat-label">主要招聘类型</div>
+          <div class="stat-value" style="font-size:16px;">${Object.entries(d.jobTypes).sort((a, b) => b[1] - a[1])[0][0]}</div>
+        </div>
+      </div>
+
+      <div class="card-grid card-grid-2 data-fade-in">
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#127919;</span> 活跃度仪表盘</div>
+          <div class="gauge-container">
+            <div class="chart-container-sm">
+              <canvas id="chart-boss-gauge"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#128202;</span> 职位类型分布</div>
+          <div class="chart-container">
+            <canvas id="chart-job-types"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card data-fade-in">
+        <div class="card-title"><span class="card-title-icon">&#128200;</span> 近6个月招聘趋势</div>
+        <div class="chart-container">
+          <canvas id="chart-recruit-trend"></canvas>
+        </div>
+      </div>
+    `;
+
+    // 活跃度仪表盘（用环形图模拟）
+    const gaugeColor = d.activityScore > 80 ? '#00e676' : d.activityScore > 50 ? '#f0b90b' : '#ff4757';
+    createChart('chart-boss-gauge', {
+      type: 'doughnut',
+      data: {
+        labels: ['活跃度', '剩余'],
+        datasets: [{
+          data: [d.activityScore, 100 - d.activityScore],
+          backgroundColor: [gaugeColor, 'rgba(42, 48, 80, 0.5)'],
+          borderColor: '#1a1f35',
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '75%',
+        rotation: -90,
+        circumference: 180,
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false }
+        }
+      }
+    });
+
+    // 职位类型分布
+    const jobColors = ['#00d4ff', '#f0b90b', '#00e676', '#ff4757', '#a855f7', '#ff9f43'];
+    createChart('chart-job-types', {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(d.jobTypes),
+        datasets: [{
+          data: Object.values(d.jobTypes),
+          backgroundColor: jobColors,
+          borderColor: '#1a1f35',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right' }
+        }
+      }
+    });
+
+    // 招聘趋势
+    createChart('chart-recruit-trend', {
+      type: 'bar',
+      data: {
+        labels: d.recruitMonths,
+        datasets: [{
+          label: '在招职位数',
+          data: d.recruitTrend,
+          backgroundColor: 'rgba(0, 212, 255, 0.6)',
+          borderColor: '#00d4ff',
+          borderWidth: 1,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(42, 48, 80, 0.5)' }
+          }
+        }
+      }
+    });
+  }
+
+  // ============================================================
+  // 模块6: 求职建议
+  // ============================================================
+  function renderJobAdvice(data) {
+    const d = data.jobAdvice;
+    const container = document.getElementById('job-advice-content');
+
+    container.innerHTML = `
+      <div class="score-display data-fade-in">
+        <div class="score-circle" style="border-color:${d.riskColor};">
+          <div class="score-number" style="color:${d.riskColor};">${d.overallScore}</div>
+          <div class="score-unit">分</div>
+        </div>
+        <div class="score-info">
+          <div class="score-risk" style="background:${d.riskColor}22;color:${d.riskColor};">
+            风险等级：${d.riskLevel}
+          </div>
+          <div class="score-desc">
+            综合分析${state.currentCompany}的财务状况、法律风险、员工评价、招聘活跃度等多维度数据，
+            给出综合评分 ${d.overallScore} 分（满分100分）。
+            ${d.overallScore >= 75 ? '该公司整体表现优秀，值得考虑加入。' :
+              d.overallScore >= 50 ? '该公司存在一些需要注意的问题，建议深入了解后再做决定。' :
+                '该公司存在较多风险因素，建议谨慎考虑。'}
+          </div>
+        </div>
+      </div>
+
+      <div class="analysis-grid data-fade-in">
+        <div class="analysis-card advantages">
+          <h3><span style="color:var(--accent-green);">&#10003;</span> 优势分析</h3>
+          <ul class="analysis-list">
+            ${d.advantages.map(a => `<li>${a}</li>`).join('')}
+          </ul>
+        </div>
+        <div class="analysis-card disadvantages">
+          <h3><span style="color:var(--accent-red);">&#10007;</span> 劣势分析</h3>
+          <ul class="analysis-list">
+            ${d.disadvantages.map(d => `<li>${d}</li>`).join('')}
+          </ul>
+        </div>
+      </div>
+
+      <div class="card data-fade-in" style="margin-bottom:24px;">
+        <div class="card-title"><span class="card-title-icon">&#128161;</span> 具体建议</div>
+        <ul class="suggestion-list">
+          ${d.suggestions.map((s, i) => `
+            <li>
+              <span class="suggestion-num">${i + 1}</span>
+              <span>${s}</span>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+
+      <div class="card data-fade-in">
+        <div class="card-title"><span class="card-title-icon">&#9989;</span> 入职前检查清单</div>
+        <ul class="checklist" id="checklist">
+          ${d.checklist.map((c, i) => `
+            <li data-index="${i}">
+              <span class="check-box"></span>
+              <span>${c.item}</span>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    `;
+
+    // 绑定检查清单事件
+    document.getElementById('checklist').addEventListener('click', function (e) {
+      const li = e.target.closest('li');
+      if (li) {
+        li.classList.toggle('checked');
+      }
+    });
+  }
+
+  // ============================================================
+  // 模块7: 投资情况
+  // ============================================================
+  function renderInvestment(data) {
+    const d = data.investment;
+    const container = document.getElementById('investment-content');
+
+    container.innerHTML = `
+      <div class="card-grid card-grid-3 data-fade-in">
+        <div class="stat-card ${staggerClass(0)}">
+          <div class="stat-label">融资总额</div>
+          <div class="stat-value blue">${d.externalInvestment.totalAmount}</div>
+        </div>
+        <div class="stat-card ${staggerClass(1)}">
+          <div class="stat-label">投资方数量</div>
+          <div class="stat-value gold">${d.externalInvestment.investorCount}家</div>
+        </div>
+        <div class="stat-card ${staggerClass(2)}">
+          <div class="stat-label">最新估值</div>
+          <div class="stat-value green">${d.externalInvestment.latestValuation}</div>
+        </div>
+      </div>
+
+      <div class="card-grid card-grid-2 data-fade-in">
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#128197;</span> 投资事件时间线</div>
+          <div class="timeline">
+            ${d.events.map(e => `
+              <div class="timeline-item">
+                <div class="timeline-date">${e.date}</div>
+                <div class="timeline-content">
+                  <div class="timeline-round">
+                    <span class="tag tag-blue">${e.round}</span>
+                    <span style="margin-left:8px;color:var(--accent-gold);font-weight:600;">${e.amount}</span>
+                  </div>
+                  <div class="timeline-detail">
+                    估值：${e.valuation}
+                    <div class="timeline-investors">
+                      ${e.investors.map(inv => `<span class="tag tag-purple">${inv}</span>`).join('')}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#128202;</span> 投资轮次分布</div>
+          <div class="chart-container">
+            <canvas id="chart-invest-rounds"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card data-fade-in">
+        <div class="card-title"><span class="card-title-icon">&#127760;</span> 被投企业列表</div>
+        ${d.portfolioCompanies.map(pc => `
+          <div class="portfolio-item">
+            <div>
+              <div class="portfolio-name">${pc.name}</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${pc.industry}</div>
+            </div>
+            <div class="portfolio-detail">
+              <div>投资额：${pc.investAmount}</div>
+              <div>持股：${pc.shareRatio} | <span class="tag ${pc.status === '已退出' ? 'tag-gold' : pc.status === 'IPO中' ? 'tag-green' : 'tag-blue'}">${pc.status}</span></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    // 投资轮次分布
+    const roundLabels = Object.keys(d.roundDist);
+    const roundValues = Object.values(d.roundDist);
+    const roundColors = ['#00d4ff', '#f0b90b', '#00e676', '#ff4757', '#a855f7', '#ff9f43', '#e91e63', '#00bcd4', '#8bc34a'];
+
+    createChart('chart-invest-rounds', {
+      type: 'bar',
+      data: {
+        labels: roundLabels,
+        datasets: [{
+          label: '轮次',
+          data: roundValues,
+          backgroundColor: roundColors.slice(0, roundLabels.length).map(c => c + 'bb'),
+          borderColor: roundColors.slice(0, roundLabels.length),
+          borderWidth: 1,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1 },
+            grid: { color: 'rgba(42, 48, 80, 0.5)' }
+          }
+        }
+      }
+    });
+  }
+
+  // ============================================================
+  // 模块8: 社保缴纳
+  // ============================================================
+  function renderSocialInsurance(data) {
+    const d = data.socialInsurance;
+    const container = document.getElementById('social-insurance-content');
+
+    const ratio = d.actualVsExpected;
+    const ratioPercent = (ratio.actual / ratio.expected * 100).toFixed(1);
+
+    container.innerHTML = `
+      <div class="card-grid card-grid-3 data-fade-in">
+        <div class="stat-card ${staggerClass(0)}">
+          <div class="stat-label">实际缴纳人数</div>
+          <div class="stat-value blue">${formatNumber(ratio.actual)}</div>
+        </div>
+        <div class="stat-card ${staggerClass(1)}">
+          <div class="stat-label">应缴纳人数</div>
+          <div class="stat-value gold">${formatNumber(ratio.expected)}</div>
+        </div>
+        <div class="stat-card ${staggerClass(2)}">
+          <div class="stat-label">缴纳率</div>
+          <div class="stat-value ${parseFloat(ratioPercent) > 90 ? 'green' : parseFloat(ratioPercent) > 75 ? 'gold' : 'red'}">${ratioPercent}%</div>
+        </div>
+      </div>
+
+      <div class="card-grid card-grid-2 data-fade-in">
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#128200;</span> 缴纳人数趋势</div>
+          <div class="chart-container">
+            <canvas id="chart-si-trend"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#128202;</span> 五险一金缴纳比例</div>
+          <div class="chart-container">
+            <canvas id="chart-si-ratios"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-grid card-grid-2 data-fade-in">
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#9878;</span> 实际 vs 应缴纳人数对比</div>
+          <div class="chart-container">
+            <canvas id="chart-si-compare"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#127760;</span> 同行业对比</div>
+          <div class="chart-container">
+            <canvas id="chart-si-industry"></canvas>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // 缴纳人数趋势
+    createChart('chart-si-trend', {
+      type: 'line',
+      data: {
+        labels: d.trendYears,
+        datasets: [{
+          label: '缴纳人数',
+          data: d.trend,
+          borderColor: '#00d4ff',
+          backgroundColor: 'rgba(0, 212, 255, 0.1)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 5,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: false,
+            grid: { color: 'rgba(42, 48, 80, 0.5)' }
+          }
+        }
+      }
+    });
+
+    // 五险一金缴纳比例
+    const siLabels = Object.keys(d.ratios);
+    const siValues = Object.values(d.ratios);
+    const siColors = ['#00d4ff', '#f0b90b', '#00e676', '#ff4757', '#a855f7', '#ff9f43'];
+
+    createChart('chart-si-ratios', {
+      type: 'bar',
+      data: {
+        labels: siLabels,
+        datasets: [{
+          label: '缴纳比例(%)',
+          data: siValues,
+          backgroundColor: siColors.map(c => c + '99'),
+          borderColor: siColors,
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            min: 60,
+            max: 100,
+            grid: { color: 'rgba(42, 48, 80, 0.5)' },
+            ticks: {
+              callback: function (v) { return v + '%'; }
+            }
+          }
+        }
+      }
+    });
+
+    // 实际vs应缴纳
+    createChart('chart-si-compare', {
+      type: 'bar',
+      data: {
+        labels: ['实际缴纳', '应缴纳'],
+        datasets: [{
+          label: '人数',
+          data: [ratio.actual, ratio.expected],
+          backgroundColor: ['rgba(0, 212, 255, 0.7)', 'rgba(240, 185, 11, 0.7)'],
+          borderColor: ['#00d4ff', '#f0b90b'],
+          borderWidth: 1,
+          borderRadius: 6,
+          barPercentage: 0.5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(42, 48, 80, 0.5)' }
+          }
+        }
+      }
+    });
+
+    // 行业对比
+    const ic = d.industryCompare;
+    createChart('chart-si-industry', {
+      type: 'bar',
+      data: {
+        labels: [ic.companyName, '行业平均', '行业标杆'],
+        datasets: [{
+          label: '缴纳率(%)',
+          data: [ic.pensionRate, ic.industryAvg, ic.industryTop],
+          backgroundColor: ['rgba(0, 212, 255, 0.8)', 'rgba(240, 185, 11, 0.8)', 'rgba(0, 230, 118, 0.8)'],
+          borderColor: ['#00d4ff', '#f0b90b', '#00e676'],
+          borderWidth: 1,
+          borderRadius: 6,
+          barPercentage: 0.5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            min: 60,
+            max: 100,
+            grid: { color: 'rgba(42, 48, 80, 0.5)' },
+            ticks: {
+              callback: function (v) { return v + '%'; }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // ============================================================
+  // 模块9: 股票投资
+  // ============================================================
+  function renderStock(data) {
+    const d = data.stock;
+    const container = document.getElementById('stock-content');
+
+    if (d.markets.length === 0) {
+      container.innerHTML = `
+        <div class="card data-fade-in">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128202;</div>
+            <div class="empty-state-text">该公司暂无公开上市信息</div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="card-grid card-grid-${Math.min(d.markets.length, 3)} data-fade-in">
+        ${d.markets.map(m => `
+          <div class="stock-card">
+            <div class="stock-header">
+              <div>
+                <div class="stock-name">${m.market}</div>
+                <div class="stock-code">${m.code}</div>
+              </div>
+              <div class="stock-change ${m.change >= 0 ? 'up' : 'down'}">
+                ${m.change >= 0 ? '+' : ''}${m.change}%
+              </div>
+            </div>
+            <div class="stock-price" style="color:${m.change >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">
+              ${m.currentPrice}
+            </div>
+            <div class="stock-meta">
+              <span>市值：${m.marketCap}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="card data-fade-in">
+        <div class="card-title"><span class="card-title-icon">&#128200;</span> 股价走势（近12个月）</div>
+        <div class="chart-container-lg">
+          <canvas id="chart-stock-price"></canvas>
+        </div>
+      </div>
+
+      <div class="card data-fade-in">
+        <div class="card-title"><span class="card-title-icon">&#128176;</span> 关键财务指标</div>
+        <div class="card-grid card-grid-3" style="margin-top:16px;">
+          <div class="stat-card">
+            <div class="stat-label">市盈率(PE)</div>
+            <div class="stat-value blue">${d.financials.pe}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">市净率(PB)</div>
+            <div class="stat-value gold">${d.financials.pb}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">每股收益(EPS)</div>
+            <div class="stat-value green">${d.financials.eps}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">股息率</div>
+            <div class="stat-value">${d.financials.dividendYield}%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">营收增长率</div>
+            <div class="stat-value ${d.financials.revenueGrowth >= 0 ? 'green' : 'red'}">${d.financials.revenueGrowth >= 0 ? '+' : ''}${d.financials.revenueGrowth}%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">利润增长率</div>
+            <div class="stat-value ${d.financials.profitGrowth >= 0 ? 'green' : 'red'}">${d.financials.profitGrowth >= 0 ? '+' : ''}${d.financials.profitGrowth}%</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // 股价走势图
+    createChart('chart-stock-price', {
+      type: 'line',
+      data: {
+        labels: d.priceMonths,
+        datasets: [{
+          label: '股价',
+          data: d.priceTrend,
+          borderColor: '#00d4ff',
+          backgroundColor: function (context) {
+            const chart = context.chart;
+            const { ctx, chartArea } = chart;
+            if (!chartArea) return 'rgba(0, 212, 255, 0.1)';
+            const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            gradient.addColorStop(0, 'rgba(0, 212, 255, 0.3)');
+            gradient.addColorStop(1, 'rgba(0, 212, 255, 0.0)');
+            return gradient;
+          },
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointHoverRadius: 7,
+          borderWidth: 2,
+          pointBackgroundColor: '#00d4ff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            grid: { color: 'rgba(42, 48, 80, 0.5)' }
+          }
+        }
+      }
+    });
+  }
+
+  // ============================================================
+  // 模块10: 企业文化
+  // ============================================================
+  function renderCulture(data) {
+    const d = data.culture;
+    const container = document.getElementById('culture-content');
+
+    container.innerHTML = `
+      <div class="card-grid card-grid-2 data-fade-in">
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#128202;</span> 文化维度评分</div>
+          <div class="chart-container">
+            <canvas id="chart-culture-radar"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">&#127991;</span> 文化标签</div>
+          <div class="tag-cloud" style="margin-top:16px;">
+            ${d.tags.map(t => `<span class="tag tag-blue">${t}</span>`).join('')}
+          </div>
+          <div class="divider"></div>
+          <div class="card-title"><span class="card-title-icon">&#127873;</span> 福利待遇</div>
+          <div class="benefit-grid">
+            ${d.benefits.map(b => `
+              <div class="benefit-item">
+                <span class="benefit-icon">&#10003;</span>
+                <span>${b}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="card data-fade-in">
+        <div class="card-title"><span class="card-title-icon">&#127891;</span> 员工活动与培训</div>
+        ${d.activities.map(a => `
+          <div class="activity-card">
+            <span class="activity-type ${a.type === '培训' ? 'training' : 'event'}">${a.type}</span>
+            <div class="activity-info">
+              <div class="activity-name">${a.name}</div>
+              <div class="activity-desc">${a.desc}</div>
+              <div class="activity-freq">频率：${a.frequency}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    // 文化维度雷达图
+    const cs = d.scores;
+    createChart('chart-culture-radar', {
+      type: 'radar',
+      data: {
+        labels: ['创新力', '协作性', '透明度', '员工关怀', '成长空间'],
+        datasets: [{
+          label: '评分',
+          data: [cs.innovation, cs.collaboration, cs.transparency, cs.employeeCare, cs.growthSpace],
+          backgroundColor: 'rgba(240, 185, 11, 0.2)',
+          borderColor: '#f0b90b',
+          pointBackgroundColor: '#f0b90b',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: '#f0b90b',
+          borderWidth: 2,
+          pointRadius: 5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          r: {
+            beginAtZero: true,
+            max: 10,
+            ticks: {
+              stepSize: 2,
+              color: '#6b7280',
+              backdropColor: 'transparent'
+            },
+            grid: { color: 'rgba(42, 48, 80, 0.5)' },
+            pointLabels: { color: '#9ca3af', font: { size: 13 } },
+            angleLines: { color: 'rgba(42, 48, 80, 0.5)' }
+          }
+        }
+      }
+    });
+  }
+
+
+  // ============================================================
+  // 数据来源标签辅助函数
+  // ============================================================
+  function isRealDataCompany() {
+    return ['字节跳动', '腾讯控股', '阿里巴巴', '华为技术', '小米集团'].includes(state.currentCompany);
+  }
+
+  function getDataSourceTag() {
+    return isRealDataCompany()
+      ? '<span class="data-source-tag real">真实数据</span>'
+      : '<span class="data-source-tag mock">模拟数据</span>';
+  }
+
+  // ============================================================
+  // 模块11: AI智能分析
+  // ============================================================
+  function renderAIAnalysis(data) {
+    const container = document.getElementById('ai-analysis-content');
+    const hasKey = APIConfig.hasZhipuKey();
+    container.innerHTML = `
+      <div class="card">
+        <div style="text-align:center;padding:40px;">
+          <div style="font-size:48px;margin-bottom:16px;">&#129302;</div>
+          <p style="color:var(--text-secondary);margin-bottom:24px;">${hasKey
+            ? `点击下方按钮，AI将使用智谱GLM-4-Flash大模型对${state.currentCompany}进行深度分析`
+            : `点击下方按钮，将使用内置规则引擎分析${state.currentCompany}的数据<br><span style="font-size:13px;color:var(--text-muted);">配置智谱AI API Key可获得更深入的AI分析</span> <a href="javascript:void(0)" id="go-settings-link" style="color:var(--accent-cyan);font-size:13px;text-decoration:none;">→ [去设置]</a>`
+          }</p>
+          <button id="btn-generate-ai-report" style="padding:12px 32px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-gold));color:#000;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">${hasKey ? '生成AI深度分析报告' : '生成分析报告'}</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('btn-generate-ai-report').addEventListener('click', generateAIReport);
+    const goSettingsLink = document.getElementById('go-settings-link');
+    if (goSettingsLink) {
+      goSettingsLink.addEventListener('click', () => {
+        document.getElementById('inputZhipuKey').value = APIConfig.zhipuKey;
+        document.getElementById('inputAiqichaToken').value = APIConfig.aiqichaToken;
+        document.getElementById('dataSourcePriority').value = APIConfig.dataSourcePriority;
+        document.getElementById('settingsModal').style.display = 'flex';
+      });
+    }
+  }
+
+  async function generateAIReport() {
+    const container = document.getElementById('ai-analysis-content');
+    const d = state.companyData;
+    const name = state.currentCompany;
+
+    // 构建数据摘要
+    const dataSummary = `
+公司名称：${name}
+注册资本：${d.companyInfo.registeredCapital}
+成立日期：${d.companyInfo.establishDate}
+法人：${d.companyInfo.legalPerson}
+行业：${d.companyInfo.industry}
+员工数：${d.companyInfo.employees}
+经营状态：${d.companyInfo.status}
+
+【财务数据】
+近5年营收：${d.annualReport.revenue.join('、')}
+近5年净利润：${d.annualReport.profit.join('、')}
+毛利率：${d.annualReport.financialIndicators.grossMargin}%
+净利率：${d.annualReport.financialIndicators.netMargin}%
+负债率：${d.annualReport.financialIndicators.debtRatio}%
+
+【法律风险】
+劳动仲裁：${d.arbitration.total}件（工资拖欠${d.arbitration.categories.wage}件、违法解除${d.arbitration.categories.illegalDismiss}件、加班费${d.arbitration.categories.overtimePay}件、工伤${d.arbitration.categories.workInjury}件、社保${d.arbitration.categories.socialSecurity}件、竞业限制${d.arbitration.categories.nonCompete}件）
+司法诉讼：${d.lawsuit.total}件（原告占比${(d.lawsuit.plaintiffRatio*100).toFixed(1)}%）
+
+【员工体验】
+满意度：${d.overtime.satisfactionScore}/5
+工作强度：${d.overtime.scores.workIntensity}/10
+加班频率：${d.overtime.scores.overtimeFrequency}/10
+周末加班：${d.overtime.scores.weekendOvertime}/10
+工作生活平衡：${d.overtime.scores.workLifeBalance}/10
+
+【招聘情况】
+在招职位：${d.bossRecruit.jobCount}个
+活跃度：${d.bossRecruit.activityScore}分
+
+【投资情况】
+融资轮次：${d.investment.events.length}轮
+${d.stock.markets.length > 0 ? '上市情况：' + d.stock.markets.map(m => m.market + ' ' + m.code).join('、') : '上市情况：未上市'}
+
+【社保缴纳】
+缴纳人数：${d.socialInsurance.paymentTrend[d.socialInsurance.paymentTrend.length-1]}人
+应缴人数：${d.socialInsurance.actualVsExpected.expected}人
+缴纳率：${(d.socialInsurance.actualVsExpected.ratio*100).toFixed(1)}%
+
+【企业文化】
+创新：${d.culture.dimensions.innovation}/10
+协作：${d.culture.dimensions.collaboration}/10
+透明度：${d.culture.dimensions.transparency}/10
+员工关怀：${d.culture.dimensions.employeeCare}/10
+成长空间：${d.culture.dimensions.growthSpace}/10
+  `.trim();
+
+    // 判断是否使用AI API
+    if (APIConfig.hasZhipuKey()) {
+      // 使用 智谱AI
+      container.innerHTML = '<div class="ai-loading"><span class="dot">&#9679;</span><span class="dot">&#9679;</span><span class="dot">&#9679;</span> AI正在深度分析中（使用智谱GLM-4-Flash大模型）...</div>';
+
+      try {
+        const systemPrompt = `你是一位资深的企业背调分析师和职业规划顾问。请根据提供的企业数据，从以下维度进行深度分析：
+
+1. 财务健康度（营收增长趋势、盈利能力、负债水平）
+2. 法律风险评估（仲裁和诉讼情况、作为原告/被告的比例）
+3. 员工体验分析（满意度、加班文化、工作生活平衡）
+4. 投资与发展前景（融资情况、上市状态、招聘活跃度）
+5. 综合建议（是否推荐加入、需要注意的风险、入职建议）
+
+请用专业但易懂的语言，给出详细的分析报告。每个维度给出评分（0-100分）和具体分析。最后给出综合评分和明确建议。
+
+格式要求：
+- 每个维度用标题分隔
+- 给出具体评分
+- 最后给出综合评分和明确建议（推荐加入/建议观望/谨慎考虑）`;
+
+        const aiResponse = await callZhipuAI(systemPrompt, dataSummary);
+
+        // 渲染AI返回的内容
+        renderAIReportFromText(container, aiResponse, name);
+
+      } catch (err) {
+        container.innerHTML = `
+          <div class="card" style="border-color:var(--accent-red);">
+            <h3 style="color:var(--accent-red);margin-bottom:12px;">AI分析失败</h3>
+            <p style="color:var(--text-secondary);margin-bottom:16px;">${err.message}</p>
+            <p style="color:var(--text-muted);font-size:13px;">请检查API Key是否正确，或使用内置规则引擎分析。</p>
+            <button onclick="generateAIReportFallback()" style="margin-top:12px;padding:8px 20px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);cursor:pointer;">使用内置分析</button>
+          </div>
+        `;
+      }
+    } else {
+      // 没有API Key，使用内置规则引擎
+      generateAIReportFallback();
+    }
+  }
+
+  // 内置规则引擎分析（无API时使用）
+  async function generateAIReportFallback() {
+    const container = document.getElementById('ai-analysis-content');
+    container.innerHTML = '<div class="ai-loading"><span class="dot">&#9679;</span><span class="dot">&#9679;</span><span class="dot">&#9679;</span> 正在分析数据...</div>';
+    await new Promise(r => setTimeout(r, 1500));
+
+    const d = state.companyData;
+    const name = state.currentCompany;
+
+    const revenueGrowth = ((d.annualReport.revenue[4] - d.annualReport.revenue[0]) / d.annualReport.revenue[0] * 100).toFixed(1);
+    const profitMargin = d.annualReport.financialIndicators.netMargin;
+    const debtRatio = d.annualReport.financialIndicators.debtRatio;
+
+    const financialScore = Math.min(100, Math.max(0,
+      50 + parseFloat(revenueGrowth) * 0.3 + (profitMargin - 10) * 2 - (debtRatio - 40) * 0.5
+    )).toFixed(0);
+
+    const legalScore = Math.min(100, Math.max(0,
+      100 - d.arbitration.total * 0.5 - d.lawsuit.total * 0.1 + d.lawsuit.plaintiffRatio * 20
+    )).toFixed(0);
+
+    const employeeScore = Math.min(100, Math.max(0,
+      d.overtime.satisfactionScore * 20 - d.overtime.scores.overtimeFrequency * 3 + d.overtime.scores.workLifeBalance * 5
+    )).toFixed(0);
+
+    const investScore = Math.min(100, Math.max(0,
+      d.investment.events.length * 8 + d.bossRecruit.activityScore * 0.3 + d.socialInsurance.actualVsExpected.ratio * 50
+    )).toFixed(0);
+
+    const overallScore = (financialScore * 0.3 + legalScore * 0.25 + employeeScore * 0.25 + investScore * 0.2).toFixed(0);
+
+    const financialLevel = financialScore >= 70 ? '优秀' : financialScore >= 50 ? '良好' : financialScore >= 30 ? '一般' : '较差';
+    const legalLevel = legalScore >= 70 ? '低风险' : legalScore >= 50 ? '中等风险' : '较高风险';
+    const employeeLevel = employeeScore >= 70 ? '良好' : employeeScore >= 50 ? '一般' : '较差';
+
+    const verdict = overallScore >= 75
+      ? `${name}整体表现优秀，财务状况健康，法律风险较低，是一家值得考虑加入的企业。建议重点关注入职后的团队匹配度和个人发展空间。`
+      : overallScore >= 50
+      ? `${name}整体表现中等，存在一些需要注意的问题。建议深入了解目标部门的具体情况，权衡利弊后再做决定。特别关注加班文化和职业发展路径。`
+      : `${name}存在较多风险因素，包括财务压力、法律纠纷或员工体验不佳等。建议谨慎考虑，如决定入职，建议做好充分的职业规划和退出预案。`;
+
+    const isRealData = isRealDataCompany();
+
+    container.innerHTML = `
+      <div class="ai-report-section">
+        <h3><span class="icon">&#128202;</span> 综合评分 <span class="data-source-tag ${isRealData?'real':'mock'}">${isRealData?'真实数据':'模拟数据'}</span></h3>
+        <div class="advice-score">
+          <div class="advice-score-number">${overallScore}</div>
+          <div class="advice-score-label">满分100 · 内置规则引擎分析</div>
+          <div class="risk-badge ${overallScore >= 75 ? 'low' : overallScore >= 50 ? 'medium' : 'high'}">
+            ${overallScore >= 75 ? '推荐加入' : overallScore >= 50 ? '建议观望' : '谨慎考虑'}
+          </div>
+          ${!APIConfig.hasZhipuKey() ? '<p style="color:var(--text-muted);font-size:12px;margin-top:12px;">配置智谱AI API Key可获得更深入的AI分析</p>' : ''}
+        </div>
+      </div>
+
+      <div class="ai-report-section">
+        <h3><span class="icon">&#128176;</span> 财务健康度</h3>
+        <div class="ai-score-bar"><span class="label">评分</span><div class="bar"><div class="bar-fill" style="width:${financialScore}%;background:${financialScore>=70?'var(--accent-green)':financialScore>=50?'var(--accent-gold)':'var(--accent-red)'}"></div></div><span class="value">${financialScore}</span></div>
+        <div class="ai-report-text">近5年营收增长率${revenueGrowth}%，净利润率${profitMargin}%，负债率${debtRatio}%。评级：<strong>${financialLevel}</strong>。${financialScore >= 70 ? '公司财务状况稳健，营收持续增长。' : financialScore >= 50 ? '财务状况基本稳定，需关注增速变化。' : '面临一定财务压力。'}</div>
+      </div>
+
+      <div class="ai-report-section">
+        <h3><span class="icon">&#9878;</span> 法律风险评估</h3>
+        <div class="ai-score-bar"><span class="label">评分</span><div class="bar"><div class="bar-fill" style="width:${legalScore}%;background:${legalScore>=70?'var(--accent-green)':legalScore>=50?'var(--accent-gold)':'var(--accent-red)'}"></div></div><span class="value">${legalScore}</span></div>
+        <div class="ai-report-text">劳动仲裁${d.arbitration.total}件，司法诉讼${d.lawsuit.total}件，原告占比${(d.lawsuit.plaintiffRatio*100).toFixed(1)}%。评级：<strong>${legalLevel}</strong>。</div>
+      </div>
+
+      <div class="ai-report-section">
+        <h3><span class="icon">&#128101;</span> 员工体验分析</h3>
+        <div class="ai-score-bar"><span class="label">评分</span><div class="bar"><div class="bar-fill" style="width:${employeeScore}%;background:${employeeScore>=70?'var(--accent-green)':employeeScore>=50?'var(--accent-gold)':'var(--accent-red)'}"></div></div><span class="value">${employeeScore}</span></div>
+        <div class="ai-report-text">满意度${d.overtime.satisfactionScore}/5，加班频率${d.overtime.scores.overtimeFrequency}/10，WLB${d.overtime.scores.workLifeBalance}/10。评级：<strong>${employeeLevel}</strong>。</div>
+      </div>
+
+      <div class="ai-report-section">
+        <h3><span class="icon">&#128200;</span> 投资与发展</h3>
+        <div class="ai-score-bar"><span class="label">评分</span><div class="bar"><div class="bar-fill" style="width:${investScore}%;background:${investScore>=70?'var(--accent-green)':investScore>=50?'var(--accent-gold)':'var(--accent-red)'}"></div></div><span class="value">${investScore}</span></div>
+        <div class="ai-report-text">${d.investment.events.length}轮融资，活跃度${d.bossRecruit.activityScore}分，社保缴纳率${(d.socialInsurance.actualVsExpected.ratio*100).toFixed(1)}%。</div>
+      </div>
+
+      <div class="ai-verdict" style="background:${overallScore>=75?'rgba(16,185,129,0.08)':overallScore>=50?'rgba(245,158,11,0.08)':'rgba(239,68,68,0.08)'};border-color:${overallScore>=75?'var(--accent-green)':overallScore>=50?'var(--accent-gold)':'var(--accent-red)'};">
+        <h3>&#129302; 综合建议</h3>
+        <p>${verdict}</p>
+      </div>
+    `;
+  }
+
+  // 渲染AI返回的文本报告
+  function renderAIReportFromText(container, text, name) {
+    // 将AI返回的Markdown文本转换为HTML
+    let html = text
+      .replace(/#{1,3}\s(.+)/g, '<h3 style="color:var(--accent-cyan);margin:16px 0 8px;font-size:15px;">$1</h3>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/(\d+)分/g, '<span style="color:var(--accent-gold);font-weight:600;">$1分</span>')
+      .replace(/推荐加入|建议观望|谨慎考虑/g, match => {
+        const cls = match === '推荐加入' ? 'low' : match === '建议观望' ? 'medium' : 'high';
+        return `<span class="risk-badge ${cls}" style="display:inline;margin:0 4px;">${match}</span>`;
+      })
+      .replace(/\n\n/g, '</p><p style="color:var(--text-secondary);line-height:1.8;margin:8px 0;">')
+      .replace(/\n/g, '<br>');
+
+    container.innerHTML = `
+      <div class="ai-report-section">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+          <span style="font-size:12px;padding:2px 8px;border-radius:10px;background:rgba(0,212,255,0.15);color:var(--accent-cyan);">智谱AI 分析</span>
+          <span style="font-size:12px;color:var(--text-muted);">${new Date().toLocaleString('zh-CN')}</span>
+        </div>
+      </div>
+      <div class="ai-report-section">
+        <p style="color:var(--text-secondary);line-height:1.8;margin:8px 0;">${html}</p>
+      </div>
+    `;
+  }
+
+  // ============================================================
+  // 更新模块数据来源标签
+  // ============================================================
+  function updateModuleDataTags() {
+    const tag = getDataSourceTag();
+    const moduleTitles = document.querySelectorAll('.module-title');
+    moduleTitles.forEach(title => {
+      // Remove existing data source tags
+      const existingTag = title.querySelector('.data-source-tag');
+      if (existingTag) existingTag.remove();
+      // Add new tag (skip welcome and AI analysis panels)
+      const panel = title.closest('.module-panel');
+      if (panel && panel.id !== 'panel-welcome' && panel.id !== 'panel-ai-analysis') {
+        title.insertAdjacentHTML('beforeend', tag);
+      }
+    });
+  }
+
+
+  // ============================================================
+  // 设置面板
+  // ============================================================
+  function initSettings() {
+    const modal = document.getElementById('settingsModal');
+    const btnSettings = document.getElementById('btn-settings');
+    const closeBtn = document.getElementById('closeSettings');
+    const saveBtn = document.getElementById('saveSettings');
+
+    if (btnSettings) {
+      btnSettings.addEventListener('click', () => {
+        // 回填当前值
+        document.getElementById('inputZhipuKey').value = APIConfig.zhipuKey;
+        document.getElementById('inputAiqichaToken').value = APIConfig.aiqichaToken;
+        document.getElementById('dataSourcePriority').value = APIConfig.dataSourcePriority;
+        modal.style.display = 'flex';
+      });
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+    }
+
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.style.display = 'none';
+      });
+    }
+
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => {
+        APIConfig.zhipuKey = document.getElementById('inputZhipuKey').value.trim();
+        APIConfig.aiqichaToken = document.getElementById('inputAiqichaToken').value.trim();
+        APIConfig.dataSourcePriority = document.getElementById('dataSourcePriority').value;
+        APIConfig.save();
+        modal.style.display = 'none';
+
+        // 显示保存成功提示
+        showToast('设置已保存');
+      });
+    }
+  }
+
+  // Toast 提示
+  function showToast(message) {
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 24px;background:var(--accent-green);color:#000;border-radius:8px;font-size:14px;font-weight:600;z-index:2000;animation:fadeInUp 0.3s ease-out;';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; }, 2000);
+    setTimeout(() => { toast.remove(); }, 2500);
+  }
+
+  // ============================================================
+  // 启动
+  // ============================================================
+  document.addEventListener('DOMContentLoaded', function() {
+    init();
+    initSettings();
+  });
+
+  // 如果DOM已经加载完成，立即执行
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initSettings();
+  }
+
+  // 全局暴露（HTML onclick需要）
+  window.generateAIReportFallback = generateAIReportFallback;
+
+})();
+</script>
+
+<!-- API设置弹窗 -->
+<div class="modal-overlay" id="settingsModal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>&#9881;&#65039; API 设置</h3>
+      <button class="modal-close" id="closeSettings">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="setting-group">
+        <label>智谱AI API Key</label>
+        <small>用于AI智能分析功能（GLM-4-Flash永久免费）。免费注册：https://open.bigmodel.cn</small>
+        <input type="password" id="inputZhipuKey" placeholder="你的智谱AI API Key" />
+        <small class="setting-hint">通过Vercel后端代理调用（部署后可用）</small>
+      </div>
+      <div class="setting-group">
+        <label>爱企查 API Token</label>
+        <small>用于查询真实企业工商数据。免费注册：https://openapi.baidu.com</small>
+        <input type="password" id="inputAiqichaToken" placeholder="你的爱企查API Token" />
+        <small class="setting-hint">需要通过Vercel后端代理调用（部署后可用）</small>
+      </div>
+      <div class="setting-group">
+        <label>数据源优先级</label>
+        <select id="dataSourcePriority">
+          <option value="api-first">优先使用API真实数据</option>
+          <option value="local-first">优先使用内置数据</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-save" id="saveSettings">保存设置</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
