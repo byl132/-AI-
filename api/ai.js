@@ -10,7 +10,7 @@ module.exports = async function handler(req, res) {
     const body = req.body;
 
     // API Key 优先级：请求体 > 环境变量 > 内置默认值
-    const apiKey =
+    const apiKey =e021d768491341889ed2988981f71fca.Xw0f16sAz6ehjCXt
       body.api_key ||
       process.env.ZHIPU_API_KEY ||
       "e021d768491341889ed2988981f71fca.Xw0f16sAz6ehjCXt";
