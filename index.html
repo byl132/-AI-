@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企业背调系统 - Enterprise Background Check</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 页面加载动画 -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+</div>
+
+<div class="app-container" id="appContainer">
+
+  <!-- 侧边栏 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">BC</div>
+      <div>
+        <div class="sidebar-title">企业背调系统</div>
+        <div class="sidebar-subtitle">Background Check</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav">
+      <div class="nav-item active" data-module="welcome">
+        <span class="nav-icon">&#9776;</span>
+        <span>总览首页</span>
+      </div>
+      <div class="nav-item" data-module="annual-report">
+        <span class="nav-icon">&#128200;</span>
+        <span>年报分析</span>
+      </div>
+      <div class="nav-item" data-module="arbitration">
+        <span class="nav-icon">&#9878;</span>
+        <span>劳动仲裁</span>
+      </div>
+      <div class="nav-item" data-module="lawsuit">
+        <span class="nav-icon">&#9879;</span>
+        <span>司法判决</span>
+      </div>
+      <div class="nav-item" data-module="overtime">
+        <span class="nav-icon">&#9200;</span>
+        <span>加班及评价</span>
+      </div>
+      <div class="nav-item" data-module="boss-recruit">
+        <span class="nav-icon">&#128188;</span>
+        <span>BOSS直聘</span>
+      </div>
+      <div class="nav-item" data-module="job-advice">
+        <span class="nav-icon">&#128161;</span>
+        <span>求职建议</span>
+      </div>
+      <div class="nav-item" data-module="investment">
+        <span class="nav-icon">&#128176;</span>
+        <span>投资情况</span>
+      </div>
+      <div class="nav-item" data-module="social-insurance">
+        <span class="nav-icon">&#128101;</span>
+        <span>社保缴纳</span>
+      </div>
+      <div class="nav-item" data-module="stock">
+        <span class="nav-icon">&#128202;</span>
+        <span>股票投资</span>
+      </div>
+      <div class="nav-item" data-module="culture">
+        <span class="nav-icon">&#127942;</span>
+        <span>企业文化</span>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- 主内容 -->
+  <main class="main-content">
+
+    <!-- 顶部栏 -->
+    <header class="header">
+      <div class="mobile-menu-btn" id="mobileMenuBtn">&#9776;</div>
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <span class="search-icon">&#128269;</span>
+          <input type="text" class="search-input" id="searchInput" placeholder="输入公司名称进行背调查询..." autocomplete="off">
+          <div class="search-suggestions" id="searchSuggestions"></div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="company-indicator" id="companyIndicator">
+          <span>&#128205;</span>
+          <span id="currentCompanyName">--</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 内容区域 -->
+    <div class="content-area" id="contentArea">
+
+      <!-- 欢迎页 -->
+      <div class="module-panel active" id="panel-welcome">
+        <div class="welcome-page">
+          <div class="welcome-icon">&#128270;</div>
+          <h1 class="welcome-title">企业背调查询系统</h1>
+          <p class="welcome-desc">输入公司名称，即可全面了解企业的经营状况、法律风险、员工评价、投资背景等关键信息，助您做出更明智的职业决策。</p>
+          <div class="welcome-hints" id="welcomeHints">
+            <!-- 由JS动态填充 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块1: 年报分析 -->
+      <div class="module-panel" id="panel-annual-report">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#128200;</span> 年报分析</h2>
+          <p class="module-desc">基于公开年报数据，分析公司经营状况和财务健康度</p>
+        </div>
+        <div id="annual-report-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128194;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块2: 劳动仲裁 -->
+      <div class="module-panel" id="panel-arbitration">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#9878;</span> 劳动仲裁</h2>
+          <p class="module-desc">查询公司劳动仲裁记录，评估劳资关系风险</p>
+        </div>
+        <div id="arbitration-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#9878;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块3: 司法判决 -->
+      <div class="module-panel" id="panel-lawsuit">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#9879;</span> 司法判决</h2>
+          <p class="module-desc">查询公司涉诉案件，了解法律风险状况</p>
+        </div>
+        <div id="lawsuit-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#9879;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块4: 加班及员工评价 -->
+      <div class="module-panel" id="panel-overtime">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#9200;</span> 加班及员工评价</h2>
+          <p class="module-desc">综合评估工作强度和员工满意度</p>
+        </div>
+        <div id="overtime-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#9200;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块5: BOSS直聘活跃度 -->
+      <div class="module-panel" id="panel-boss-recruit">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#128188;</span> BOSS直聘活跃度</h2>
+          <p class="module-desc">分析公司在招聘平台的活跃程度和招聘趋势</p>
+        </div>
+        <div id="boss-recruit-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128188;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块6: 求职建议 -->
+      <div class="module-panel" id="panel-job-advice">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#128161;</span> 求职建议</h2>
+          <p class="module-desc">基于多维度数据综合评估，给出求职建议</p>
+        </div>
+        <div id="job-advice-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128161;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块7: 投资情况 -->
+      <div class="module-panel" id="panel-investment">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#128176;</span> 投资情况</h2>
+          <p class="module-desc">了解公司投资历史、融资轮次和投资布局</p>
+        </div>
+        <div id="investment-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128176;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块8: 社保缴纳 -->
+      <div class="module-panel" id="panel-social-insurance">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#128101;</span> 社保缴纳</h2>
+          <p class="module-desc">查看公司社保缴纳情况和行业对比</p>
+        </div>
+        <div id="social-insurance-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128101;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块9: 股票投资 -->
+      <div class="module-panel" id="panel-stock">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#128202;</span> 股票投资</h2>
+          <p class="module-desc">查看公司上市信息和股票市场表现</p>
+        </div>
+        <div id="stock-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128202;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块10: 企业文化 -->
+      <div class="module-panel" id="panel-culture">
+        <div class="module-header">
+          <h2 class="module-title"><span class="module-title-icon">&#127942;</span> 企业文化</h2>
+          <p class="module-desc">深入了解公司文化、福利待遇和员工关怀</p>
+        </div>
+        <div id="culture-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">&#127942;</div>
+            <div class="empty-state-text">请先搜索并选择一家公司</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
